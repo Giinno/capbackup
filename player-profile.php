@@ -5,58 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Profile</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #222222;
+            background-color: #121212;
             font-size: 14px;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             color: #ffffff;
             margin-bottom: 50px;
         }
+        .navbar {
+            background-color: #1c1e21;
+            border-bottom: 3px solid #f57c00;
+        }
         .navbar-brand, .nav-link {
-            color: #ffa500 !important;
+            color: #f57c00 !important;
+            font-weight: bold;
         }
         .profile-container {
-            border: 1px solid #ddd;
+            border: none;
             padding: 20px;
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
-            background-color: #333333;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            background-color: #1f1f1f;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             display: flex;
-            flex-direction: column;
             align-items: center;
+            flex-wrap: wrap;
+            transition: transform 0.3s ease;
+        }
+        .profile-container:hover {
+            transform: translateY(-5px);
         }
         .profile-picture {
-            width: 100px;
-            height: 100px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 20px;
+            margin-right: 20px;
+            border: 3px solid #f57c00;
+        }
+        .profile-info {
+            flex: 1;
         }
         .profile-info h1 {
             margin: 0;
-            font-size: 22px;
-            color: #ffa500;
-            text-align: center;
+            font-size: 28px;
+            color: #f57c00;
         }
         .profile-info h2 {
             margin: 5px 0;
-            font-size: 16px;
+            font-size: 18px;
             color: #ffffff;
-            text-align: center;
         }
         .additional-info {
             margin-top: 10px;
-            color: #ffffff;
-            text-align: center;
+            color: #b3b3b3;
         }
         .average-stats {
             display: flex;
             justify-content: space-around;
-            background-color: #444444;
-            padding: 10px;
+            background-color: #282828;
+            padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
             text-align: center;
@@ -66,11 +77,11 @@
             text-align: center;
         }
         .average-stats h2 {
-            font-size: 18px;
-            color: #ffa500;
+            font-size: 20px;
+            color: #f57c00;
         }
         .average-stats p {
-            font-size: 14px;
+            font-size: 16px;
             color: #ffffff;
         }
         .stats-table {
@@ -82,24 +93,27 @@
         .stats-table th, .stats-table td {
             padding: 10px;
             text-align: left;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
         }
         .stats-table th {
-            background-color: #444444;
-            color: #ffa500;
+            background-color: #282828;
+            color: #f57c00;
         }
         .stats-table tbody tr:nth-child(odd) {
-            background-color: #333333;
+            background-color: #222;
+        }
+        .stats-table tbody tr:nth-child(even) {
+            background-color: #1a1a1a;
         }
     </style>
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a href="#" class="navbar-brand">Ballers Hub</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon">&#9776;</span>
             </button>
             <div class="collapse navbar-collapse" id="navbarToggler">
                 <ul class="navbar-nav ml-auto">
@@ -116,7 +130,6 @@
 </header>
 
 <div class="container">
-    <h2 class="text-center my-4">Player Profile</h2>
     <div class="profile-container">
         <?php
         $servername = "localhost";
@@ -174,9 +187,9 @@
                 $average_rebounds = $total_rebounds / $game_count;
 
                 echo "<div class='average-stats'>";
-                echo "<div><h2>Points</h2><p>" . number_format($average_points, 2) . "</p></div>";
-                echo "<div><h2>Assists</h2><p>" . number_format($average_assists, 2) . "</p></div>";
-                echo "<div><h2>Rebounds</h2><p>" . number_format($average_rebounds, 2) . "</p></div>";
+                echo "<div><h2>PPG</h2><p>" . number_format($average_points, 2) . "</p></div>";
+                echo "<div><h2>APG</h2><p>" . number_format($average_assists, 2) . "</p></div>";
+                echo "<div><h2>RPG</h2><p>" . number_format($average_rebounds, 2) . "</p></div>";
                 echo "</div>";
             } else {
                 echo "<div class='average-stats'>";
