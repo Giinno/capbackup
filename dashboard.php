@@ -30,6 +30,13 @@ $stmt->bind_result($firstname, $lastname, $email);
 $stmt->fetch();
 $stmt->close();
 
+// Fetch card content
+$card_content_stmt = $conn->prepare("SELECT title, body, image_url FROM card_content WHERE id = 1");
+$card_content_stmt->execute();
+$card_content_stmt->bind_result($card_title, $card_body, $card_image_url);
+$card_content_stmt->fetch();
+$card_content_stmt->close();
+
 $conn->close();
 ?>
 
@@ -44,7 +51,7 @@ $conn->close();
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
         body {
-            background-color: #222222;
+            background-color: #121212;
             font-family: 'Montserrat', sans-serif;
             color: #ffffff;
             margin-bottom: 50px;
@@ -59,7 +66,7 @@ $conn->close();
         }
 
         .navbar {
-            background-color: #1a1a1a;
+            background-color: #343a40;
             margin-top: -25px;
         }
 
@@ -75,13 +82,13 @@ $conn->close();
         .nav-link:hover {
             color: #f57c00;
         }
+
         .nav-link:active {
             color: #f57c00;
         }
         
         .dropdown-item {
             color: black !important;
-            font-style: italic;
             font-weight: 500;
         }
 
@@ -94,6 +101,8 @@ $conn->close();
             border: none;
             background-color: #333333;
             color: #ffffff;
+            word-spacing: 1px;
+            letter-spacing: .8px;
         }
 
         .card-body {
@@ -143,6 +152,7 @@ $conn->close();
             font-weight: bold;
             margin-top: -80px;
             margin-bottom: -100px;
+            font-family: sans-serif;
         }
 
         /* Ensure sufficient contrast */
@@ -167,10 +177,9 @@ $conn->close();
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="profile.php">Players</a></li>
-                            <li><a class="dropdown-item" href="statistics.php">Stats</a></li>
-                            <li><a class="dropdown-item" href="#">Leagues</a></li>
+                            <li><a class="dropdown-item" href="Gameresult.php">Games</a></li>
                             <li><a class="dropdown-item" href="/schedule/schedule.php">Reserve a Court</a></li>
-                            <li><a class="dropdown-item" href="#">Contact us</a></li>
+                            <li><a class="dropdown-item" href="AboutUs.php">The Team</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -231,14 +240,14 @@ $conn->close();
         <div class="col-md-8">
             <div class="card new-card">
                 <div class="card-body">
-                    <h1 class="card-title">Jandrix Despalo of Sto Niño All-Stars</h1>
-                    <p class="card-text">Jandrix Despalo exploded on the court with a performance for the ages! He put on an offensive masterclass, dropping a staggering <strong>70 points.</strong> Despalo wasn't just a scoring machine; he dominated the boards with an impressive <strong>21 rebounds.</strong> With <strong>0 assists</strong>, his focus on scoring and securing rebounds powered his team's offense. To cap off this incredible night, imagine Despalo shooting an exceptional percentage, like a scorching 75% from the field, making his scoring outburst even more impressive. This performance solidified Despalo's place as a true offensive force to be reckoned with.</p>
+                    <h1 class="card-title"><?php echo htmlspecialchars($card_title); ?></h1>
+                    <p class="card-text"><?php echo nl2br(htmlspecialchars($card_body)); ?></p>
                     <a href="profile.php" class="btn btn-primary">View more</a>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <img src="images/jandrix.png" class="img-fluid rounded-start" alt="Jandrix Despalo">
+            <img src="<?php echo htmlspecialchars($card_image_url); ?>" class="img-fluid rounded-start" alt="Jandrix Despalo">
         </div>
     </div>
 </div>
