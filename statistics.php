@@ -38,17 +38,79 @@
     <h2 class="text-center my-4">Basketball Player Statistics</h2>
 
     <?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "ballers_db";
+    require 'db-connect.php';
 
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Begin transaction
+        $conn->begin_transaction();
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        try {
+            // Insert game results into the 'games' table
+            $stmtGames = $conn->prepare("INSERT INTO games (team1, team2, team1_score, team2_score) VALUES (?, ?, ?, ?)");
+            $stmtGames->bind_param("ssii", $_POST['teams'][1]['team'], $_POST['teams'][2]['team'], $_POST['teams'][1]['total_score'], $_POST['teams'][2]['total_score']);
+            $stmtGames->execute();
+            if ($stmtGames->error) {
+                throw new Exception($stmtGames->error);
+            }
+            $game_id = $stmtGames->insert_id; // Get the inserted game_id
+            $stmtGames->close();
+
+            // Insert player statistics
+            $stmtStats = $conn->prepare("
+                INSERT INTO statistics (
+                    game_id, name, number, points, assists, reb_off, reb_def, rebounds, steals, turnovers, blocks, fouls, 
+                    2pt_attempted, 2pt_made, 3pt_attempted, 3pt_made, ft_attempted, ft_made, profile_picture
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            if ($stmtStats === false) {
+                throw new Exception($conn->error);
+            }
+
+            foreach ($_POST['teams'] as $team) {
+                foreach ($team['players'] as $player) {
+                    $profilePicture = $player['profile_picture'] ?? 'default_profile_picture.jpg';
+                    $totalRebounds = $player['reb_off'] + $player['reb_def'];
+
+                    $stmtStats->bind_param("isiiiiiiiiiiiiiiisi", 
+                        $game_id,
+                        $player['name'],
+                        $player['number'],
+                        $player['points'],
+                        $player['assists'],
+                        $player['reb_off'],
+                        $player['reb_def'],
+                        $totalRebounds,
+                        $player['steals'],
+                        $player['turnovers'],
+                        $player['blocks'],
+                        $player['fouls'],
+                        $player['2pt_attempted'],
+                        $player['2pt_made'],
+                        $player['3pt_attempted'],
+                        $player['3pt_made'],
+                        $player['ft_attempted'],
+                        $player['ft_made'],
+                        $profilePicture
+                    );
+
+                    if (!$stmtStats->execute()) {
+                        throw new Exception($stmtStats->error);
+                    }
+                }
+            }
+            $stmtStats->close();
+
+            // Commit transaction
+            $conn->commit();
+
+            // Redirect to the same page to refresh
+            header("Location: ".$_SERVER['PHP_SELF']);
+            exit;
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $conn->rollback();
+            echo "<div class='alert alert-danger text-center'>Failed to save data: " . $e->getMessage() . "</div>";
+        }
     }
 
     // Fetch player statistics
@@ -64,8 +126,8 @@
                 <th>Number</th>
                 <th>Points</th>
                 <th>Assists</th>
-                <th>Def Reb</th>
                 <th>Off Reb</th>
+                <th>Def Reb</th>
                 <th>Rebounds</th>
                 <th>Steals</th>
                 <th>Blocks</th>
@@ -81,17 +143,7 @@
         echo "</thead><tbody>";
         while($row = $result->fetch_assoc()) {
             $totalRebounds = $row["reb_def"] + $row["reb_off"];
-
-            // Fetch profile picture based on player's name
-            $playerName = $row["name"];
-            $profilePictureSql = "SELECT profile_picture FROM statistics WHERE name = '$playerName'";
-            $profilePictureResult = $conn->query($profilePictureSql);
-            if ($profilePictureResult->num_rows > 0) {
-                $profilePictureRow = $profilePictureResult->fetch_assoc();
-                $profilePicture = $profilePictureRow["profile_picture"];
-            } else {
-                $profilePicture = 'default_profile_picture.jpg'; // Use a default picture if none is provided
-            }
+            $profilePicture = $row["profile_picture"];
 
             echo "<tr>";
             echo "<td><img src='" . $profilePicture . "' alt='Profile Picture' width='50' height='50'></td>";
@@ -121,6 +173,7 @@
 
     $conn->close();
     ?>
+
 </div>
 
 <!-- Bootstrap JS and dependencies -->
