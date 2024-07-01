@@ -141,6 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 50%;
             border: 2px solid #ffffff;
         }
+        select {
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
