@@ -145,6 +145,7 @@
     <!-- Add Player Form -->
     <div class="text-right mb-3">
         <button type="button" class="btn btn-primary" onclick="showAddPlayerForm()">Add Player</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='CreateTeam.php'">Add Team</button>
     </div>
     <div id="addPlayerForm" class="mb-3" style="display: none;">
         <form action="profile-cms.php" method="post" enctype="multipart/form-data">
