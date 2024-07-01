@@ -145,7 +145,7 @@
             </a>
 
             <div>
-                <a class="text-light" href="dashboard.php" style="color: #FC5700;">Home</a>
+                <a class="text-lights" href="dashboard.php" style="color: #FC5700;">Home</a>
             </div>
         </div>
     </nav>
@@ -156,36 +156,36 @@
             </div>
             <div class="col-md-3">
                 <div class="card rounded-0 shadow">
-                    <div class="card-header bg-gradient bg-primary text-light">
+                    <div class="card-header bg-gradient bg-primary text-light" style="background-color:#FC5700;">
                         <h5 class="card-title">Schedule Form</h5>
                     </div>
                     <div class="card-body">
                         <div class="container-fluid">
                             <form action="save_schedule.php" method="post" id="schedule-form">
-                                <input type="hidden" name="id" value="" disabled>
+                                <input type="hidden" name="id" value="">
                                 <div class="form-group mb-2">
                                     <label for="title" class="control-label">Reserver's name</label>
-                                    <input type="text" class="form-control form-control-sm rounded-0" name="title" id="title" required disabled>
+                                    <input type="text" class="form-control form-control-sm rounded-0" name="title" id="title" required >
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="description" class="control-label">Description</label>
-                                    <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="description" required disabled></textarea>
+                                    <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="description" required ></textarea>
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="start_datetime" class="control-label">Start</label>
-                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_datetime" id="start_datetime" required disabled>
+                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_datetime" id="start_datetime" required >
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="end_datetime" class="control-label">End</label>
-                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_datetime" id="end_datetime" required disabled>
+                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_datetime" id="end_datetime" required >
                                 </div>
                             </form>
                         </div>
                     </div>
                     <div class="card-footer">
                         <div class="text-center">
-                            <button class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" disabled><i class="fa fa-save" href="schedule.php"></i> Save</button>
-                            <button class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" disabled><i class="fa fa-reset"></i> Cancel</button>
+                            <button class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" ><i class="fa fa-save" href="schedule.php"></i> Save</button>
+                            <button class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" ><i class="fa fa-reset"></i> Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -228,8 +228,8 @@
                 </div>
                 <div class="modal-footer rounded-0">
                     <div class="text-end">
-                        <button type="button" class="btn btn-primary btn-sm rounded-0" id="edit" data-id="" disabled>Edit</button>
-                        <button type="button" class="btn btn-danger btn-sm rounded-0" id="delete" data-id="" disabled>Delete</button>
+                        <button type="button" class="btn btn-primary btn-sm rounded-0" id="edit" data-id="" >Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm rounded-0" id="delete" data-id="" >Delete</button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-0" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -245,12 +245,36 @@
         $row['sdate'] = date("F d, Y h:i A",strtotime($row['start_datetime']));
         $row['edate'] = date("F d, Y h:i A",strtotime($row['end_datetime']));
         $sched_res[$row['id']] = $row;
-}
-        if(isset($conn)) $conn->close();
+    }
+    if(isset($conn)) $conn->close();
 ?>
 </body>
 <script>
-    var scheds = $.parseJSON('<?= json_encode($sched_res) ?>')
+    var scheds = $.parseJSON('<?= json_encode($sched_res) ?>');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateTimeInput = document.getElementById('start_datetime');
+        const endDateTimeInput = document.getElementById('end_datetime');
+
+        startDateTimeInput.addEventListener('change', function() {
+            const startDateTime = new Date(startDateTimeInput.value);
+            endDateTimeInput.min = startDateTimeInput.value;
+
+            if (endDateTimeInput.value && new Date(endDateTimeInput.value) < startDateTime) {
+                endDateTimeInput.value = '';
+            }
+        });
+
+        endDateTimeInput.addEventListener('change', function() {
+            const startDateTime = new Date(startDateTimeInput.value);
+            const endDateTime = new Date(endDateTimeInput.value);
+
+            if (endDateTime < startDateTime) {
+                alert('End date and time cannot be earlier than start date and time.');
+                endDateTimeInput.value = '';
+            }
+        });
+    });
 </script>
 <script src="./js/script.js"></script>
 
