@@ -1,16 +1,19 @@
 <?php
 require_once('db-connect.php');
 
-if(isset($_POST['title'])){
-    $title = $conn->real_escape_string($_POST['title']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['id'];
 
-    // Delete the schedule based on the title
-    $delete = $conn->query("DELETE FROM `schedule_list` WHERE `title` = '$title'");
+    $stmt = $conn->prepare("DELETE FROM `schedule_list` WHERE `id` = ?");
+    $stmt->bind_param("i", $id);
 
-    if($delete){
+    if ($stmt->execute()) {
         echo 1;
     } else {
         echo 0;
     }
+
+    $stmt->close();
+    $conn->close();
 }
 ?>
