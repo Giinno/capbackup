@@ -101,9 +101,110 @@ $conn->close();
         .container {
             margin-top: 50px;
         }
+        .sidebar {
+            height: 100%;
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            background-color: #575d63;
+        }
+
+        .content {
+            margin-left: 210px;
+            padding: 20px;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            background-color: #f56C00;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        .sidebar a {
+            font-size: 18px;
+            text-decoration: none;
+            color: #222222;
+            padding: 15px 20px;
+            text-align: center;
+            width: 80%;
+            margin: 10px 0;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+            background-color: #ffffff;
+            color: black;
+            font-weight: bold;
+        }
+
+        .sidebar a:hover {
+            background-color: #f56C00;
+            color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .logout-button {
+            margin-top: auto;
+            padding: 10px 20px;
+            background-color: #222222;
+            color: #f56C00;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            text-align: center;
+            width: 80%;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .logout-button:hover {
+            background-color: #f56C00;
+            color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+        .container{
+            margin-left: 270px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #222222 !important;
+            margin-bottom: 40px;
+        }
     </style>
 </head>
 <body>
+<div class="sidebar">
+        <p class="navbar-brand" style="font-size: 30px;">Ballers Hub</p>
+        <a href="profile-cms.php">Profile Settings</a>
+        <a href="stats-cms.php">Statistics Settings</a>
+        <a href="gamresult.php">Game Results</a>
+        <a href="CreateTeam.php">Create Team</a>
+        <a href="edit-card-content.php">Dashboard Showcase</a>
+        <a href="viewteams.php">View Teams</a>
+        <a href="Feedback.php">Feedback</a>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
 <div class="container">
 
     <h1>Edit Card Content</h1>
