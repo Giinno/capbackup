@@ -27,16 +27,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_result($user_id, $stored_password, $role);
             $stmt->fetch();
 
-            // Compare passwords directly (no hashing)
-            if ($password === $stored_password) {
+            // Compare the provided password directly with the stored password
+            if ($password == $stored_password) {
                 // Password is correct, start a new session
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['username'] = $username;
-                $_SESSION['role'] = $role;
+                $_SESSION['role'] = trim($role); // Trim any leading/trailing spaces
 
-                // Redirect to dashboard.php
-                header("Location: dashboard.php");
-                exit; // Ensure the script stops execution after header redirect
+                // Debugging logs
+                error_log("User ID: " . $_SESSION['user_id']);
+                error_log("User role: " . $_SESSION['role']);
+
+                // Redirect based on role
+                switch (strtolower($_SESSION['role'])) {
+                    case 'statistics-admin':
+                        error_log("Redirecting to Stats-admin.php");
+                        header("Location: Stats-admin.php");
+                        exit(); // Ensure the script stops execution after header redirect
+                    case 'scheduling-admin':
+                        error_log("Redirecting to Sched-admin.php");
+                        header("Location: Sched-admin.php");
+                        exit(); // Ensure the script stops execution after header redirect
+                    case 'super-admin':
+                        error_log("Redirecting to Super-admin.php");
+                        header("Location: Super-admin.php");
+                        exit(); // Ensure the script stops execution after header redirect
+                    default:
+                        error_log("Redirecting to dashboard.php");
+                        header("Location: dashboard.php");
+                        exit(); // Ensure the script stops execution after header redirect
+                }
             } else {
                 $error = "Invalid password.";
             }
