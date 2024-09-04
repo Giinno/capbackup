@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+    body {
+        background-color: #121212;
+        font-size: 14px;
+        margin-bottom: 50px;
+        font-family: 'Roboto', Arial, sans-serif;
+        color: #ffffff;
+        opacity: 0;
+        animation: fadeIn 1s forwards;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+    .navbar {
+        margin-bottom: 20px;
+        background-color: #1c1e21;
+        border-bottom: 3px solid #f57c00;
+    }
+
+    .navbar-brand {
+        font-weight: bold;
+        color: #f57c00 !important;
+        text-decoration: none;
+        white-space: nowrap;
+        letter-spacing: 1px;
+    }
+
+    .navbar-nav .nav-link {
+        color: #ffffff !important;
+        font-size: 15px;
+        transition: color 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #f57c00 !important;
+    }
+
+    .navbar-toggler {
+        border: none;
+        color: #f57c00;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f57c00;
+    }
+
+    .card {
+        margin-top: 20px;
+        border: none;
+        background-color: #333333;
+        color: #ffffff;
+        word-spacing: 1px;
+        letter-spacing: .8px;
+    }
+
+    .card-body {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+        color: #f57c00;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background-color: #f57c00;
+        border: none;
+    }
+
+    .carousel-inner img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .container {
+        margin-top: 30px;
+    }
+
+    .img-fluid {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-banner {
+        background: url('images/basketball-banner.jpg') no-repeat center center;
+        background-size: cover;
+        height: 300px;
+        color: #f57c00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-top: -80px;
+        margin-bottom: -100px;
+    }
+
+    .event-card {
+        margin-top: 20px;
+        border: none;
+        background-color: #444444;
+        color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .event-card:hover {
+        transform: scale(1.05);
+    }
+
+    .event-card img {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .event-date {
+        color: #f57c00;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    footer {
+        margin-top: 70px;
+    }
