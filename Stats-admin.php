@@ -1,3 +1,17 @@
+<?php
+session_start();
+
+// Check if the user is logged in and has the role of 'Statistics-admin'
+if (!isset($_SESSION['user_id']) || strtolower(trim($_SESSION['role'])) !== 'statistics-admin') {
+    // Redirect to login page if the user is not logged in or does not have the right role
+    header('Location: login.php');
+    exit;
+}
+
+// Debugging line to check session values
+error_log("User ID: " . $_SESSION['user_id']);
+error_log("User role: " . $_SESSION['role']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -120,22 +134,33 @@
     </style>
     <script>
         function loadPage(page) {
+            console.log('Loading page:', page);
             const xhr = new XMLHttpRequest();
             xhr.open('GET', page, true);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById('content-container').innerHTML = xhr.responseText;
+                if (xhr.readyState === 4) {
+                    console.log('ReadyState:', xhr.readyState, 'Status:', xhr.status);
+                    if (xhr.status === 200) {
+                        document.getElementById('content-container').innerHTML = xhr.responseText;
+                    } else {
+                        console.error('Failed to load page:', xhr.status, xhr.statusText);
+                        document.getElementById('content-container').innerHTML = '<p>Failed to load content. Please try again later.</p>';
+                    }
                 }
-            }
+            };
+            xhr.onerror = function() {
+                console.error('Request error:', xhr.status, xhr.statusText);
+                document.getElementById('content-container').innerHTML = '<p>Request error. Please check your network connection and try again.</p>';
+            };
             xhr.send();
         }
 
         window.onload = function() {
             loadPage('profile-cms.php');
-        }
+        };
 
         function logout() {
-            window.location.href = 'login.php';
+            window.location.href = 'dashboard.php';
         }
 
         function toggleSidebar() {
@@ -146,16 +171,22 @@
             content.classList.toggle('shifted');
             toggleBtn.classList.toggle('hidden');
         }
+
+        function logout() {
+    window.location.href = 'dashboard.php';
+}
+
     </script>
 </head>
 <body>
     <div class="sidebar">
-        <p href="#" class="navbar-brand" style="font-size: 30px;">Ballers Hub</p>
-        <a href="#" onclick="loadPage('profile-cms.php')">Profile Settings</a>
-        <a href="#" onclick="loadPage('stats-cms.php')">Statistics Settings</a>
-        <a href="#" onclick="loadPage('gamresult.php')">Game Results</a>
-        <a href="#" onclick="loadPage('edit-card-content.php')">Dashboard Showcase</a>
-        <a href="#" onclick="loadPage('feedback.php')">Feedback</a> <!-- New sidebar item -->
+        <p class="navbar-brand" style="font-size: 30px;">Ballers Hub</p>
+        <a href="#" onclick="loadPage('profile-cms.php'); return false;">Profile Settings</a>
+        <a href="#" onclick="loadPage('stats-cms.php'); return false;">Statistics Settings</a>
+        <a href="#" onclick="loadPage('gamresult.php'); return false;">Game Results</a>
+        <a href="#" onclick="loadPage('edit-card-content.php'); return false;">Dashboard Showcase</a>
+        <a href="#" onclick="loadPage('viewteams.php'); return false;">View Teams</a>
+        <a href="#" onclick="loadPage('feedback.php'); return false;">Feedback</a>
         <button class="logout-button" onclick="logout()">Logout</button>
     </div>
     <div class="content">
