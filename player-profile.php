@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Profile</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #121212;
-            font-size: 14px;
             font-family: 'Roboto', sans-serif;
             color: #ffffff;
             margin-bottom: 50px;
@@ -105,6 +104,12 @@
         .stats-table tbody tr:nth-child(even) {
             background-color: #1a1a1a;
         }
+        .stats-table tbody tr:hover {
+            background-color: #f57c00;
+            color: #121212;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(245, 124, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -112,14 +117,11 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a href="#" class="navbar-brand">Ballers Hub</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon">&#9776;</span>
             </button>
             <div class="collapse navbar-collapse" id="navbarToggler">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a href="profile.php" class="nav-link">Back</a>
-                    </li>
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a href="dashboard.php" class="nav-link">Home</a>
                     </li>
@@ -143,6 +145,21 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
+        function getOpponentName($conn, $game_id, $team_name) {
+            $sql = "SELECT team1, team2 FROM games WHERE game_id = $game_id";
+            $result = $conn->query($sql);
+
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                if ($row['team1'] == $team_name) {
+                    return $row['team2'];
+                } else {
+                    return $row['team1'];
+                }
+            }
+            return "Unknown Opponent";
+        }
+
         if (isset($_GET['id'])) {
             $player_id = intval($_GET['id']);
             $sql_profile = "SELECT * FROM profiles WHERE id = $player_id";
@@ -151,6 +168,8 @@
             if ($result_profile->num_rows > 0) {
                 $row_profile = $result_profile->fetch_assoc();
                 $name = $row_profile['name'];
+                $team = $row_profile['team'];
+
                 echo "<img src='" . $row_profile['profile_picture'] . "' class='profile-picture' alt='Profile Picture'>";
                 echo "<div class='profile-info'>";
                 echo "<h1>" . $row_profile['name'] . "</h1>";
@@ -199,65 +218,81 @@
         } else {
             echo "<div class='alert alert-danger'>No player selected.</div>";
         }
-
-        $conn->close();
         ?>
     </div>
     
     <div class="container">
-        <h3 class="text-center my-4">Past Games</h3>
-        <?php
-        if ($result_stats->num_rows > 0) {
-            $result_stats->data_seek(0);
+    <h3 class="text-center my-4">Past Games</h3>
+    <?php
+    if (isset($result_stats) && $result_stats->num_rows > 0) {
+        $result_stats->data_seek(0); // Reset result set pointer
 
-            echo '<table class="stats-table">';
-            echo "<thead>";
-            echo "<tr>
-                    <th>Points</th>
-                    <th>Assists</th>
-                    <th>Def Reb</th>
-                    <th>Off Reb</th>
-                    <th>Rebounds</th>
-                    <th>Steals</th>
-                    <th>Blocks</th>
-                    <th>Turnovers</th>
-                    <th>Fouls</th>
-                    <th>2PA</th>
-                    <th>2PM</th>
-                    <th>3PA</th>
-                    <th>3PM</th>
-                    <th>FTA</th>
-                    <th>FTM</th>
-                </tr>";
-            echo "</thead><tbody>";
+        echo '<table class="stats-table">';
+        echo "<thead>";
+        echo "<tr>
+                <th>VS</th>
+                <th>Date</th> <!-- Changed Game ID to Date -->
+                <th>Points</th>
+                <th>Assists</th>
+                <th>Rebounds</th>
+                <th>Steals</th>
+                <th>Turnovers</th>
+                <th>2pt Attempted</th>
+                <th>2pt Made</th>
+                <th>3pt Attempted</th>
+                <th>3pt Made</th>
+                <th>FT Attempted</th>
+                <th>FT Made</th>
+                <th>Offensive Rebounds</th>
+                <th>Defensive Rebounds</th>
+                <th>Blocks</th>
+                <th>Fouls</th>
+              </tr>";
+        echo "</thead>";
+        echo "<tbody>";
 
-            while($row_stats = $result_stats->fetch_assoc()) {
-                $totalRebounds = $row_stats["reb_def"] + $row_stats["reb_off"];
-                echo "<tr>";
-                echo "<td>" . $row_stats["points"] . "</td>";
-                echo "<td>" . $row_stats["assists"] . "</td>";
-                echo "<td>" . $row_stats["reb_def"] . "</td>";
-                echo "<td>" . $row_stats["reb_off"] . "</td>";
-                echo "<td>" . $totalRebounds . "</td>";
-                echo "<td>" . $row_stats["steals"] . "</td>";
-                echo "<td>" . $row_stats["blocks"] . "</td>";
-                echo "<td>" . $row_stats["turnovers"] . "</td>";
-                echo "<td>" . $row_stats["fouls"] . "</td>";
-                echo "<td>" . $row_stats["2pt_attempted"] . "</td>";
-                echo "<td>" . $row_stats["2pt_made"] . "</td>";
-                echo "<td>" . $row_stats["3pt_attempted"] . "</td>";
-                echo "<td>" . $row_stats["3pt_made"] . "</td>";
-                echo "<td>" . $row_stats["ft_attempted"] . "</td>";
-                echo "<td>" . $row_stats["ft_made"] . "</td>";
-                echo "</tr>";
-            }
-            echo "</tbody></table>";
+        while ($row_stats = $result_stats->fetch_assoc()) {
+            $opponent = getOpponentName($conn, $row_stats["game_id"], $team);
+
+            // Fetch the game date
+            $game_id = $row_stats["game_id"];
+            $sql_game_date = "SELECT game_date FROM games WHERE game_id = $game_id";
+            $result_game_date = $conn->query($sql_game_date);
+            $game_date = ($result_game_date->num_rows > 0) ? $result_game_date->fetch_assoc()['game_date'] : 'Unknown Date';
+
+            echo "<tr onclick=\"window.location.href='/schedule/boxscore.php?game_id=" . $game_id . "'\">";
+            echo "<td>$opponent</td>";
+            echo "<td>" . $game_date . "</td>"; // Display game date
+            echo "<td>" . $row_stats["points"] . "</td>";
+            echo "<td>" . $row_stats["assists"] . "</td>";
+            echo "<td>" . ($row_stats["reb_def"] + $row_stats["reb_off"]) . "</td>";
+            echo "<td>" . $row_stats["steals"] . "</td>";
+            echo "<td>" . $row_stats["turnovers"] . "</td>";
+            echo "<td>" . $row_stats["2pt_attempted"] . "</td>";
+            echo "<td>" . $row_stats["2pt_made"] . "</td>";
+            echo "<td>" . $row_stats["3pt_attempted"] . "</td>";
+            echo "<td>" . $row_stats["3pt_made"] . "</td>";
+            echo "<td>" . $row_stats["ft_attempted"] . "</td>";
+            echo "<td>" . $row_stats["ft_made"] . "</td>";
+            echo "<td>" . $row_stats["reb_off"] . "</td>";
+            echo "<td>" . $row_stats["reb_def"] . "</td>";
+            echo "<td>" . $row_stats["blocks"] . "</td>";
+            echo "<td>" . $row_stats["fouls"] . "</td>";
+            echo "</tr>";
         }
-        ?>
-    </div>
+
+        echo "</tbody>";
+        echo "</table>";
+    } else {
+        echo "<div class='alert alert-warning'>No past games found for this player.</div>";
+    }
+
+    $conn->close();
+    ?>
 </div>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
