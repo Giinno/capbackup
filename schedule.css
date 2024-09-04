@@ -1,0 +1,120 @@
+:root {
+    --bs-success-rgb: 71, 222, 152 !important;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    font-family: Apple Chancery, cursive;
+    background-color: #222222;
+    color: #f0f0f0;
+}
+
+.btn-info.text-light:hover,
+.btn-info.text-light:focus {
+    background: #000;
+}
+table, tbody, td, tfoot, th, thead, tr {
+    border-color: #ededed !important;
+    border-style: solid;
+    border-width: 1px !important;
+}
+
+.navbar-brand {
+    color: #FC5700;
+}
+
+.navbar-dark .navbar-dark,
+.card-title {
+    color: #f0f0f0 !important;
+}
+
+.navbar-dark .navbar-brand:hover,
+.navbar-dark .text-light:hover,
+.text-light:hover {
+    color: #FC5700 !important;
+}
+
+.bg-primary {
+    background-color: #FC5700;
+}
+
+.btn-primary {
+    background-color: #FC5700;
+    border-color: #FC5700;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #cc8400;
+    border-color: #cc8400;
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+    background-color: #333333;
+}
+
+.modal-header .modal-title,
+.modal-footer .btn-secondary {
+    color: white;
+}
+
+.btn-primary {
+    background-color: #FC5700;
+    border-color: #FC5700;
+}
+.control-label {
+    color: #f0f0f0;
+}
+
+#calendar .fc-event {
+    background-color: red !important;
+    border-color: red !important;
+    color: #f0f0f0 !important;
+}
+
+.card-header {
+    background-color: #FC5700;
+    color: #FC5700;
+}
+
+.card-body {
+    background-color: #333333;
+    color: #f0f0f0;
+}
+
+.form-control {
+    background-color: #555555;
+    color: #f0f0f0;
+    border-color: #777777;
+}
+
+.form-control:focus {
+    background-color: #666666;
+    color: #f0f0f0;
+    border-color: #FC5700;
+}
+
+.btn-default {
+    background-color: #444444;
+    border-color: #777777;
+    color: #f0f0f0;
+}
+
+.btn-default:hover,
+.btn-default:focus {
+    background-color: #555555;
+    border-color: #FC5700;
+    color: #f0f0f0;
+}
+
+.text-light {
+    color: black !important;
+}
+
+.container {
+    background-color: #1a1a1a;
+}
