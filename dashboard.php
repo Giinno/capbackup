@@ -1,34 +1,6 @@
 <?php
 session_start();
-
-// Check if the user is logged in, if not then redirect them to the login page
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit;
-}
-
-// Redirect based on user role
-if ($_SESSION['role'] === 'Statistics-admin') {
-    header("Location: Stats-admin.php");
-    exit;
-}
-
-if ($_SESSION['role'] === 'Scheduling-admin') {
-    header("Location: Sched-admin.php");
-    exit;
-}
-
-// Include your database connection file if you need to query user-specific information
 include 'db-connect.php';
-
-// Example of querying user-specific information if needed
-$user_id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT firstname, lastname, email FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$stmt->bind_result($firstname, $lastname, $email);
-$stmt->fetch();
-$stmt->close();
 
 // Fetch card content
 $card_content_stmt = $conn->prepare("SELECT title, body, image_url FROM card_content WHERE id = 1");
@@ -37,158 +9,114 @@ $card_content_stmt->bind_result($card_title, $card_body, $card_image_url);
 $card_content_stmt->fetch();
 $card_content_stmt->close();
 
+// Fetch future events
+$current_date = date('Y-m-d');
+$events_stmt = $conn->prepare("SELECT title, description, event_date, image_url FROM events WHERE event_date >= ? ORDER BY event_date ASC");
+$events_stmt->bind_param('s', $current_date);
+$events_stmt->execute();
+$events_stmt->bind_result($event_title, $event_description, $event_date, $event_image);
+$events = [];
+while ($events_stmt->fetch()) {
+    $events[] = [
+        'title' => $event_title,
+        'description' => $event_description,
+        'event_date' => $event_date,
+        'image' => $event_image
+    ];
+}
+$events_stmt->close();
+
+// Fetch reservation notifications for the logged-in user
+$notifications = [];
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    $notification_stmt = $conn->prepare("SELECT id, title, status FROM schedule_list WHERE user_id = ? ORDER BY start_datetime DESC");
+    $notification_stmt->bind_param('i', $user_id); // Bind the user_id parameter
+    $notification_stmt->execute();
+    $notification_stmt->bind_result($reservation_id, $reservation_title, $reservation_status);
+    while ($notification_stmt->fetch()) {
+        $notifications[] = [
+            'id' => $reservation_id,
+            'title' => $reservation_title,
+            'status' => $reservation_status
+        ];
+    }
+    $notification_stmt->close();
+}
+
 $conn->close();
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ballers Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
-        body {
-            background-color: #121212;
-            font-family: 'Montserrat', sans-serif;
-            color: #ffffff;
-            margin-bottom: 50px;
-            opacity: 0; /* Start hidden for the fade-in effect */
-            animation: fadeIn 1s forwards; /* Fade-in animation */
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        .navbar {
-            background-color: #343a40;
-            margin-top: -25px;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            color: #f57c00 !important;
-        }
-
-        .nav-link {
-            color: white;
-        }
-
-        .nav-link:hover {
-            color: #f57c00;
-        }
-
-        .nav-link:active {
-            color: #f57c00;
-        }
-        
-        .dropdown-item {
-            color: black !important;
-            font-weight: 500;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f57c00;
-        }
-
-        .card {
-            margin-top: 20px;
-            border: none;
-            background-color: #333333;
-            color: #ffffff;
-            word-spacing: 1px;
-            letter-spacing: .8px;
-        }
-
-        .card-body {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-title {
-            font-weight: bold;
-            font-size: 1.25rem;
-            color: #f57c00;
-        }
-
-        .card-text {
-            font-size: 0.95rem;
-        }
-
-        .btn-primary {
-            background-color: #f57c00;
-            border: none;
-        }
-
-        .carousel-inner img {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-        }
-
-        .container {
-            margin-top: 30px;
-        }
-
-        .img-fluid {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-banner {
-            background: url('images/basketball-banner.jpg') no-repeat center center;
-            background-size: cover;
-            height: 300px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            margin-top: -80px;
-            margin-bottom: -100px;
-            font-family: sans-serif;
-        }
-
-        /* Ensure sufficient contrast */
-        .header-banner {
-            color: #f57c00;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/dashboard.css">
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a href="#" class="navbar-brand">Ballers Hub</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Menu
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="profile.php">Players</a></li>
-                            <li><a class="dropdown-item" href="Gameresult.php">Games</a></li>
-                            <li><a class="dropdown-item" href="/schedule/schedule.php">Reserve a Court</a></li>
-                            <li><a class="dropdown-item" href="AboutUs.php">The Team</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a href="logout.php" class="nav-link">Logout</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a href="#" class="navbar-brand">Ballers Hub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">&#9776;</span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                <li class="nav-item dropdown">
+                    <!-- Replacing text with a FontAwesome bell icon -->
+                    <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell"></i> <!-- Notification icon -->
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end p-3 shadow-lg" aria-labelledby="notificationDropdown" style="min-width: 300px;">
+                        <h6 class="dropdown-header">Notifications</h6>
+                        <div class="list-group">
+                            <?php if (count($notifications) > 0): ?>
+                                <?php foreach ($notifications as $notification): ?>
+                                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><?php echo htmlspecialchars($notification['title']); ?></strong><br>
+                                            <small class="text-muted">Status: <?php echo htmlspecialchars($notification['status']); ?></small>
+                                        </div>
+                                        <!-- Add an icon to represent the status -->
+                                        <?php if ($notification['status'] == 'pending'): ?>
+                                            <span class="badge bg-warning rounded-pill">Pending <i class="fas fa-clock"></i></span>
+                                        <?php elseif ($notification['status'] == 'confirmed'): ?>
+                                            <span class="badge bg-success rounded-pill">Confirmed <i class="fas fa-check-circle"></i></span>
+                                        <?php elseif ($notification['status'] == 'canceled'): ?>
+                                            <span class="badge bg-danger rounded-pill">Canceled <i class="fas fa-times-circle"></i></span>
+                                        <?php endif; ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <a class="list-group-item list-group-item-action">No new notifications</a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="logout.php" class="nav-link">Logout</a>
+                </li>
+                <li class="nav-item">
+                    <a href="user-profile.php" class="nav-link" style="font-weight: bolder;"><?php echo htmlspecialchars($_SESSION['username']); ?></a>
+                </li>
+                <?php else: ?>
+                <li class="nav-item">
+                    <a href="login.php" class="nav-link">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a href="Registration.php" class="nav-link">Sign up</a>
+                </li>
+                <?php endif; ?>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 </header>
 
 <div class="header-banner">
@@ -247,11 +175,32 @@ $conn->close();
             </div>
         </div>
         <div class="col-md-4">
-            <img src="<?php echo htmlspecialchars($card_image_url); ?>" class="img-fluid rounded-start" alt="Jandrix Despalo">
+            <img src="<?php echo htmlspecialchars($card_image_url); ?>" class="img-fluid rounded-start" alt="Card image">
         </div>
     </div>
-</div>
 
+    <!-- Display events -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center" style="color: #f57c00;">Upcoming Events</h2>
+        </div>
+        <?php foreach ($events as $event): ?>
+        <div class="col-md-4">
+            <div class="card event-card">
+                <?php if ($event['image']): ?>
+                <img src="<?php echo htmlspecialchars($event['image']); ?>" class="card-img-top" alt="Event Image">
+                <?php endif; ?>
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo htmlspecialchars($event['title']); ?></h5>
+                    <p class="card-text"><?php echo htmlspecialchars($event['description']); ?></p>
+                    <p class="event-date"><?php echo date('F j, Y', strtotime($event['event_date'])); ?></p>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php include 'include/footer.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
