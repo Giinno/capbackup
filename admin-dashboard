@@ -1,0 +1,373 @@
+<?php
+include 'db-connect.php';
+
+// Function to get user count by role
+function getUserCountByRole($conn, $role) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM users WHERE role = ?");
+    $stmt->bind_param("s", $role);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['count'];
+}
+
+// Function to get users by role
+function getUsersByRole($conn, $role) {
+    $stmt = $conn->prepare("SELECT first_name, last_name FROM users WHERE role = ?");
+    $stmt->bind_param("s", $role);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $users = array();
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
+    return $users;
+}
+
+// Handle AJAX request
+if (isset($_GET['action']) && $_GET['action'] == 'getUsers') {
+    header('Content-Type: application/json');
+    $role = $_GET['role'];
+    $users = getUsersByRole($conn, $role);
+    echo json_encode($users);
+    exit;
+}
+
+// Get counts for each role
+$playerCount = getUserCountByRole($conn, 'player');
+$committeeCount = getUserCountByRole($conn, 'Statistics-admin');
+$scheduleKeeperCount = getUserCountByRole($conn, 'Scheduling-admin');
+$coachCount = getUserCountByRole($conn, 'coach');
+
+// Calculate total count
+$totalCount = $playerCount + $committeeCount + $scheduleKeeperCount + $coachCount;
+
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Admin Dashboard - Ballers Hub</title>
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
+    <style>
+        :root {
+            --primary-color: #f56C00;
+            --secondary-color: #222;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-color);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--secondary-color);
+            background-color: white;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .sidebar-nav-link:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .sidebar-nav-link i {
+            margin-right: 0.5rem;
+        }
+
+        .logout-button {
+            margin-top: auto;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-weight: 600;
+        }
+
+        .logout-button:hover {
+            background-color: var(--text-color);
+            color: var(--secondary-color);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            margin-left: 250px;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--secondary-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .stat-card:hover {
+            background-color: #333;
+        }
+
+        .stat-card h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #333;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #444;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1rem;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">Ballers Hub</div>
+            <nav>
+            <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="admin-dashboard.php" class="sidebar-nav-link">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="manage-events.php" class="sidebar-nav-link">
+                            <i class="fas fa-calendar-alt"></i> Manage Events
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="add-event.php" class="sidebar-nav-link">
+                            <i class="fas fa-plus-circle"></i> Add Event
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="edit-card-content.php" class="sidebar-nav-link">
+                            <i class="fas fa-edit"></i> Dashboard Showcase
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="Feedback.php" class="sidebar-nav-link">
+                            <i class="fas fa-comment"></i> Feedback
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="admin_registration.php" class="sidebar-nav-link">
+                            <i class="fas fa-comment"></i> Admin Registration
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="logout-button" onclick="window.location.href='logout.php'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <h1 class="page-title">Admin Dashboard</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-card" onclick="showUsers('player')">
+                    <h2><?php echo $playerCount; ?></h2>
+                    <p>Players</p>
+                </div>
+                <div class="stat-card" onclick="showUsers('Statistics-admin')">
+                    <h2><?php echo $committeeCount; ?></h2>
+                    <p>Committees</p>
+                </div>
+                <div class="stat-card" onclick="showUsers('Scheduling-admin')">
+                    <h2><?php echo $scheduleKeeperCount; ?></h2>
+                    <p>Schedule Keepers</p>
+                </div>
+                <div class="stat-card" onclick="showUsers('coach')">
+                    <h2><?php echo $coachCount; ?></h2>
+                    <p>Coaches</p>
+                </div>
+                <div class="stat-card">
+                    <h2><?php echo $totalCount; ?></h2>
+                    <p>Total Users</p>
+                </div>
+            </div>
+
+            <div id="userList"></div>
+        </main>
+    </div>
+
+    <script>
+        function showUsers(role) {
+            fetch(`admin-dashboard.php?action=getUsers&role=${encodeURIComponent(role)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let tableHtml = `
+                        <h2 class="text-2xl font-bold mb-4 text-orange-500">${role.charAt(0).toUpperCase() + role.slice(1)} List</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-2">First Name</th>
+                                        <th class="px-4 py-2">Last Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    data.forEach(user => {
+                        tableHtml += `
+                            <tr>
+                                <td class="px-4 py-2">${user.first_name}</td>
+                                <td class="px-4 py-2">${user.last_name}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+
+                    document.getElementById('userList').innerHTML = tableHtml;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('userList').innerHTML = `<p class="text-red-500">Error loading user data: ${error.message}</p>`;
+                });
+        }
+
+        function logout() {
+        fetch('logout.php')
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = 'dashboard.php';
+                } else {
+                    alert('Logout failed. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+
+    </script>
+</body>
+</html>
