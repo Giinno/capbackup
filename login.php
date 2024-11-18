@@ -41,16 +41,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Redirect based on role
                 switch (strtolower($_SESSION['role'])) {
                     case 'statistics-admin':
-                        error_log("Redirecting to Stats-admin.php");
-                        header("Location: Stats-admin.php");
+                        error_log("Redirecting to Stats-admin-.php");
+                        header("Location: stats-admin-dashboard.php");
                         exit(); // Ensure the script stops execution after header redirect
                     case 'scheduling-admin':
-                        error_log("Redirecting to Sched-admin.php");
-                        header("Location: Sched-admin.php");
+                        error_log("Redirecting to Sched-admin-.php");
+                        header("Location: Sched-admin-dashboard.php");
                         exit(); // Ensure the script stops execution after header redirect
                     case 'super-admin':
-                        error_log("Redirecting to Super-admin.php");
-                        header("Location: Super-admin.php");
+                        error_log("Redirecting to admin-dashboard.php");
+                        header("Location: admin-dashboard.php");
                         exit(); // Ensure the script stops execution after header redirect
                     default:
                         error_log("Redirecting to dashboard.php");
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <title>Login</title>
-
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/sign-in/">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
     <style>
@@ -172,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" id="username" name="username" class="form-control" placeholder="Username" required>
         <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
         <button class="btn btn-lg btn-primary btn-block" id="submit" name="submit" type="submit">Login</button>
-        <a href="#" class="forgot-password">Forgot Password?</a>
+        <!-- <a href="forgot_password.php" class="forgot-password">Forgot Password?</a> -->
         <a href="Registration.php" class="forgot-password">Don't have an account?</a>
         <p class="mt-3 mb-3 text-muted text-center">&copy; Ballers Hub</p>
     </form>
