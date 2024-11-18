@@ -10,33 +10,49 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_changes'])) {
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
     $email = $_POST['email'];
-    $age = $_POST['age'];
     $position = $_POST['position'];
     $team = $_POST['team'];
-    $phone = $_POST['phone'];
-    $profile_picture = $_FILES['profile_picture']['name'];
-
-    // Update user details
-    $stmt = $conn->prepare("UPDATE users SET firstname = ?, lastname = ?, email = ?, age = ?, position = ?, team = ?, phone = ?, profile_picture = ? WHERE id = ?");
-    $stmt->bind_param('ssssssssi', $firstname, $lastname, $email, $age, $position, $team, $phone, $profile_picture, $user_id);
-    $stmt->execute();
-    $stmt->close();
-
-    // Upload profile picture
-    if ($profile_picture) {
+    
+    // Update profile picture handling
+    if ($_FILES['profile_picture']['name']) {
+        $profile_picture = $_FILES['profile_picture']['name'];
         $target_dir = "uploads/";
         $target_file = $target_dir . basename($profile_picture);
-        move_uploaded_file($_FILES['profile_picture']['tmp_name'], $target_file);
+
+        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $target_file)) {
+            $upload_success = true;
+        } else {
+            $upload_error = "Error: There was an issue uploading the file.";
+        }
+    } else {
+        $profile_picture = $_POST['existing_profile_picture'] ?? '';
     }
+
+    $bio = $_POST['bio'];
+    $number = $_POST['number'];
+    $height = $_POST['height'];
+    $born = $_POST['born'];
+
+    // Update user details
+    $stmt = $conn->prepare("UPDATE users SET first_name = ?, last_name = ?, email = ?, position = ?, team = ?, profile_picture = ?, bio = ?, number = ?, height = ?, born = ? WHERE id = ?");
+    $stmt->bind_param('ssssssssssi', $first_name, $last_name, $email, $position, $team, $profile_picture, $bio, $number, $height, $born, $user_id);
+    
+    if ($stmt->execute()) {
+        $update_success = true;
+    } else {
+        $update_error = "Error updating profile: " . $conn->error;
+    }
+    $stmt->close();
 }
 
-$stmt = $conn->prepare("SELECT firstname, lastname, username, email, age, position, team, phone, profile_picture FROM users WHERE id = ?");
+// Fetch logged-in user data
+$stmt = $conn->prepare("SELECT first_name, last_name, email, position, team, profile_picture, bio, number, height, born FROM users WHERE id = ?");
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
-$stmt->bind_result($firstname, $lastname, $username, $email, $age, $position, $team, $phone, $profile_picture);
+$stmt->bind_result($first_name, $last_name, $email, $position, $team, $profile_picture, $bio, $number, $height, $born);
 $stmt->fetch();
 $stmt->close();
 
@@ -49,130 +65,191 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
     body {
-        background-color: #121212;
+        background: linear-gradient(135deg, #1a1c20 0%, #0c0e10 100%);
         color: #ffffff;
-        font-family: 'Roboto', Arial, sans-serif;
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.6;
     }
 
     .container {
-        margin-top: 50px;
+        margin-top: 2rem;
+        padding: 0 1rem;
+        max-width: 1200px;
     }
 
     .card {
-        background-color: #333333;
+        background: linear-gradient(145deg, #2a2d35 0%, #1a1c20 100%);
         border: none;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
     }
 
     .card-body {
-        color: #ffffff;
-    }
-
-    .card-title {
-        font-size: 1.5rem;
-        color: #f57c00;
-    }
-
-    .form-control {
-        background-color: #444444;
-        color: #ffffff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px;
-    }
-
-    .form-control:focus {
-        background-color: #555555;
-        color: #ffffff;
-        border-color: #f57c00;
-    }
-
-    .btn-primary {
-        background-color: #f57c00;
-        border: none;
-        transition: background-color 0.3s;
-    }
-
-    .btn-primary:hover {
-        background-color: #ff8c00;
-    }
-
-    .profile-picture {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #f57c00;
-        margin-bottom: 15px;
+        padding: 2.5rem;
     }
 
     .profile-header {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 15px;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding: 1rem;
+        background: linear-gradient(180deg, rgba(245,124,0,0.1) 0%, rgba(0,0,0,0) 100%);
+        border-radius: 15px;
     }
 
-    .profile-header h1 {
-        margin: 0;
+    .profile-picture {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #f57c00;
+        box-shadow: 0 0 20px rgba(245,124,0,0.3);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
     }
 
-    .navbar-nav .nav-link {
+    .profile-picture:hover {
+        transform: scale(1.05);
+    }
+
+    .card-title {
+        font-size: 2.5rem;
+        color: #f57c00;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    #profile-details {
+        background: rgba(51, 51, 51, 0.8);
+        padding: 2rem;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
         color: #ffffff;
     }
 
-    .navbar-nav .nav-link:hover {
+    #profile-details p {
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        border-bottom: 1px solid rgba(245,124,0,0.2);
+        transition: background-color 0.3s ease;
+        color: #ffffff;
+        background: rgba(51, 51, 51, 0.5);
+    }
+
+    #profile-details strong {
         color: #f57c00;
+        margin-right: 1rem;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 100px;
+    }
+    .form-control {
+        background-color: rgba(68, 68, 68, 0.4);
+        color: #ffffff;
+        border: 1px solid rgba(245,124,0,0.2);
+        border-radius: 10px;
+        padding: 12px;
+        transition: all 0.3s ease;
     }
 
-    .header-banner {
-        background: url('images/basketball-banner.jpg') no-repeat center center;
-        background-size: cover;
-        height: 300px;
+    .form-control:focus {
+        color: #ffffff;
+        background-color: rgba(68, 68, 68, 0.6);
+        border-color: #f57c00;
+        box-shadow: 0 0 0 2px rgba(245,124,0,0.2);
+    }
+
+    .form-label {
         color: #f57c00;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        font-weight: bold;
-        margin-top: -80px;
-        margin-bottom: -100px;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
     }
 
-    .navbar {
-        margin-bottom: 20px;
-        background-color: #1c1e21;
-        border-bottom: 3px solid #f57c00;
-    }
-
-    .navbar-brand {
-        font-weight: bold;
-        color: #f57c00 !important;
-        text-decoration: none;
-        white-space: nowrap;
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
         letter-spacing: 1px;
+        transition: all 0.3s ease;
     }
 
-    .navbar-nav .nav-link {
-        color: #ffffff !important;
-        font-size: 15px;
-        transition: color 0.3s ease;
-    }
-
-    .navbar-nav .nav-link:hover {
-        color: #f57c00 !important;
-    }
-
-    .navbar-toggler {
+    .btn-primary {
+        background: linear-gradient(45deg, #f57c00 0%, #ff9800 100%);
         border: none;
+        box-shadow: 0 4px 15px rgba(245,124,0,0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #ff9800 0%, #f57c00 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245,124,0,0.4);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(45deg, #444 0%, #333 100%);
+        border: none;
+        color: #fff;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(45deg, #333 0%, #444 100%);
         color: #f57c00;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+        }
+
+        .card-title {
+            font-size: 2rem;
+        }
+    }
+    .profile-info {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin-left: 10px;
+    }
+
+    .navbar-brand, .nav-link { 
+        color: #f57c00 !important; 
+    }
+
+    .dropdown-menu {
+        background: #2a2d35;
+    }
+
+    .dropdown-item {
+        color: #ffffff;
     }
 
     .dropdown-item:hover {
-        background-color: #f57c00;
+        background: #f57c00;
+        color: #ffffff;
     }
     </style>
 </head>
@@ -204,13 +281,16 @@ $conn->close();
                         <a href="logout.php" class="nav-link">Logout</a>
                     </li>
                     <li class="nav-item">
-                        <a href="user-profile.php" class="nav-link" style="font-weight: bolder;"><?php echo htmlspecialchars($_SESSION['username']); ?></a>
+                        <a href="user-profile.php" class="nav-link" style="font-weight: bolder;"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></a>
                     </li>
                     <?php else: ?>
                     <li class="nav-item">
                         <a href="login.php" class="nav-link">Login</a>
                     </li>
                     <?php endif; ?>
+                    <li class="nav-item">
+                        <a href="dashboard.php" class="nav-link">Back</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -222,54 +302,81 @@ $conn->close();
         <div class="card-body">
             <div class="profile-header">
                 <?php if ($profile_picture): ?>
-                <img src="uploads/<?php echo htmlspecialchars($profile_picture); ?>" class="profile-picture" alt="Profile Picture">
+                <img src="<?php echo htmlspecialchars($profile_picture); ?>" class="profile-picture" alt="Profile Picture">
                 <?php else: ?>
                 <img src="images/default-profile.png" class="profile-picture" alt="Default Profile Picture">
                 <?php endif; ?>
-                <h1 class="card-title"><?php echo htmlspecialchars($username); ?></h1>
+                <h1 class="card-title"><?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></h1>
             </div>
             <div id="profile-details">
-                <p><strong>First Name:</strong> <?php echo htmlspecialchars($firstname); ?></p>
-                <p><strong>Last Name:</strong> <?php echo htmlspecialchars($lastname); ?></p>
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
-                <p><strong>Age:</strong> <?php echo htmlspecialchars($age); ?></p>
                 <p><strong>Position:</strong> <?php echo htmlspecialchars($position); ?></p>
                 <p><strong>Team:</strong> <?php echo htmlspecialchars($team); ?></p>
-                <p><strong>Phone:</strong> <?php echo htmlspecialchars($phone); ?></p>
+                <p><strong>Bio:</strong> <?php echo htmlspecialchars($bio); ?></p>
+                <p><strong>Number:</strong> <?php echo htmlspecialchars($number); ?></p>
+                <p><strong>Height:</strong> <?php echo htmlspecialchars($height); ?></p>
+                <p><strong>Born:</strong> <?php echo htmlspecialchars($born); ?></p>
             </div>
             <div id="profile-edit" style="display: none;">
                 <form action="user-profile.php" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label for="firstname" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="firstname" name="firstname" value="<?php echo htmlspecialchars($firstname); ?>" required>
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($first_name); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label for="lastname" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="lastname" name="lastname" value="<?php echo htmlspecialchars($lastname); ?>" required>
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($last_name); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label for="age" class="form-label">Age</label>
-                        <input type="number" class="form-control" id="age" name="age" value="<?php echo htmlspecialchars($age); ?>" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="position" class="form-label">Position</label>
-                        <input type="text" class="form-control" id="position" name="position" value="<?php echo htmlspecialchars($position); ?>" required>
+                        <select class="form-select" id="position" name="position" required>
+                            <option value="Point Guard" <?php echo ($position == 'Point Guard') ? 'selected' : ''; ?>>Point Guard</option>
+                            <option value="Shooting Guard" <?php echo ($position == 'Shooting Guard') ? 'selected' : ''; ?>>Shooting Guard</option>
+                            <option value="Small Forward" <?php echo ($position == 'Small Forward') ? 'selected' : ''; ?>>Small Forward</option>
+                            <option value="Power Forward" <?php echo ($position == 'Power Forward') ? 'selected' : ''; ?>>Power Forward</option>
+                            <option value="Center" <?php echo ($position == 'Center') ? 'selected' : ''; ?>>Center</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="team" class="form-label">Team</label>
                         <input type="text" class="form-control" id="team" name="team" value="<?php echo htmlspecialchars($team); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($phone); ?>" required>
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" required><?php echo htmlspecialchars($bio); ?></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="number" class="form-label">Number</label>
+                        <input type="text" class="form-control" id="number" name="number" value="<?php echo htmlspecialchars($number); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="height" class="form-label">Height</label>
+                        <select class="form-select" id="height" name="height" required>
+                            <?php
+                            for ($feet = 4; $feet <= 8; $feet++) {
+                                for ($inches = 0; $inches < 12; $inches++) {
+                                    $height_option = $feet . "'" . $inches . '"';
+                                    echo "<option value=\"$height_option\"" . ($height == $height_option ? ' selected' : '') . ">$height_option</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="born" class="form-label">Born</label>
+                        <input type="date" class="form-control" id="born" name="born" value="<?php echo htmlspecialchars($born); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="profile_picture" class="form-label">Profile Picture</label>
                         <input type="file" class="form-control" id="profile_picture" name="profile_picture">
+                        <?php if ($profile_picture): ?>
+                            <img src="<?php echo htmlspecialchars($profile_picture); ?>" alt="Current Profile Picture" class="mt-2" style="max-width: 100px; max-height: 100px;">
+                            <input type="hidden" name="existing_profile_picture" value="<?php echo htmlspecialchars($profile_picture); ?>">
+                        <?php endif; ?>
                     </div>
                     <button type="submit" class="btn btn-primary" name="save_changes">Save Changes</button>
                 </form>
@@ -293,6 +400,44 @@ document.getElementById('cancel-edit-btn').addEventListener('click', function() 
     document.getElementById('profile-edit').style.display = 'none';
     document.getElementById('edit-profile-btn').style.display = 'block';
     document.getElementById('cancel-edit-btn').style.display = 'none';
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (isset($update_success) && $update_success): ?>
+        Swal.fire({
+            title: 'Success!',
+            text: 'Your profile has been updated successfully.',
+            icon: 'success',
+            confirmButtonColor: '#f57c00'
+        });
+    <?php endif; ?>
+
+    <?php if (isset($update_error)): ?>
+        Swal.fire({
+            title: 'Error!',
+            text: <?php echo json_encode($update_error); ?>,
+            icon: 'error',
+            confirmButtonColor: '#f57c00'
+        });
+    <?php endif; ?>
+
+    <?php if (isset($upload_success) && $upload_success): ?>
+        Swal.fire({
+            title: 'Success!',
+            text: 'Your profile picture has been uploaded successfully.',
+            icon: 'success',
+            confirmButtonColor: '#f57c00'
+        });
+    <?php endif; ?>
+
+    <?php if (isset($upload_error)): ?>
+        Swal.fire({
+            title: 'Error!',
+            text: <?php echo json_encode($upload_error); ?>,
+            icon: 'error',
+            confirmButtonColor: '#f57c00'
+        });
+    <?php endif; ?>
 });
 </script>
 
