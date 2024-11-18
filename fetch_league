@@ -1,0 +1,40 @@
+<?php
+// Enable CORS for development
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+
+// Include the database connection file
+require_once 'db-connect.php';
+
+// Check connection
+if ($conn->connect_error) {
+    http_response_code(500);
+    die(json_encode(['error' => "Connection failed: " . $conn->connect_error]));
+}
+
+try {
+    // Fetch leagues from the database
+    $leagueQuery = "SELECT DISTINCT league_name FROM teams ORDER BY league_name";
+    $leagueResult = $conn->query($leagueQuery);
+
+    if ($leagueResult === false) {
+        throw new Exception("Query failed: " . $conn->error);
+    }
+
+    $leagues = array();
+
+    if ($leagueResult->num_rows > 0) {
+        while($row = $leagueResult->fetch_assoc()) {
+            $leagues[] = $row['league_name'];
+        }
+        echo json_encode($leagues);
+    } else {
+        echo json_encode([]);
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+}
+
+$conn->close();
+?>
