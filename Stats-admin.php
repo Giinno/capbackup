@@ -18,6 +18,7 @@ error_log("User role: " . $_SESSION['role']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stats Admin</title>
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -180,14 +181,14 @@ error_log("User role: " . $_SESSION['role']);
 </head>
 <body>
     <div class="sidebar">
-        <p class="navbar-brand" style="font-size: 30px;">Ballers Hub</p>
-        <a href="#" onclick="loadPage('profile-cms.php'); return false;">Profile Settings</a>
-        <a href="#" onclick="loadPage('stats-cms.php'); return false;">Statistics Settings</a>
-        <a href="#" onclick="loadPage('gamresult.php'); return false;">Game Results</a>
-        <a href="#" onclick="loadPage('edit-card-content.php'); return false;">Dashboard Showcase</a>
-        <a href="#" onclick="loadPage('viewteams.php'); return false;">View Teams</a>
-        <a href="#" onclick="loadPage('feedback.php'); return false;">Feedback</a>
-        <button class="logout-button" onclick="logout()">Logout</button>
+        <p class="navbar-brand">Ballers Hub</p>
+        <a href="profile-cms.php"><i class="fas fa-user-cog"></i> Profile Settings</a>
+        <a href="stats-cms.php"><i class="fas fa-chart-bar"></i> Statistics Settings</a>
+        <a href="gamresult.php"><i class="fas fa-trophy"></i> Game Results</a>
+        <a href="CreateTeam.php"><i class="fas fa-users"></i> Create Team</a>
+        <a href="viewteams.php"><i class="fas fa-eye"></i> View Teams</a>
+        <a href="update_player_team.php" class="active"><i class="fas fa-exchange-alt"></i> Update Player Team</a>
+        <button class="btn btn-light mt-4 ml-4" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
     <div class="content">
         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">☰</button>
