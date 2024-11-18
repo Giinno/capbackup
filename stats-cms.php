@@ -1,403 +1,293 @@
+<?php
+include 'db-connect.php';
+
+$sql = "SELECT s.*, u.profile_picture 
+        FROM statistics s 
+        LEFT JOIN users u ON s.first_name = u.first_name AND s.last_name = u.last_name";
+$result = $conn->query($sql);
+
+if (!$result) {
+    die("Query failed: " . $conn->error);
+}
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basketball Game CMS</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        *{
-            padding: 5px;
-        }
         body {
-            background-color: #333333;
-            font-size: 13px;
-            margin-bottom: 50px;
-        }
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 100%;
-            margin-left: 280px;
-        }
-        th, td {
-            padding: 5px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #343a40;
-            color: white;
-        }
-        img {
-            border-radius: 50%;
-        }
-        .form-group label {
-            font-weight: bold;
-        }
-        .btn-warning {
-            color: #fff;
-        }
-        td, h2 {
-            color: #ffffff;
-        }
-        td {
-            font-weight: 700;
-            font-size: 12px;
-        }
-        label {
-            font-size: 15px;
-            padding: 2px;
-            word-spacing: 1px;
-            letter-spacing: 1px;
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
         }
         .sidebar {
-            height: 100%;
-            width: 200px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            padding-top: 20px;
+            background-color: #1e1e1e;
+            transition: all 0.3s;
         }
-
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
+        .sidebar-item {
+            transition: all 0.3s;
         }
-
-        .sidebar a:hover {
-            background-color: #575d63;
+        .sidebar-item:hover {
+            background-color: #ff6600;
+            color: #121212;
         }
-
         .content {
-            margin-left: 210px;
-            padding: 20px;
+            background-color: #1a1a1a;
         }
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #f56C00;
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
+        .btn-primary {
+            background-color: #ff6600;
+            color: #121212;
         }
-        .sidebar a {
-            font-size: 18px;
-            text-decoration: none;
-            color: #222222;
-            padding: 15px 20px;
-            text-align: center;
-            width: 80%;
-            margin: 10px 0;
-            border-radius: 8px;
-            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
-            background-color: #ffffff;
-            color: black;
-            font-weight: bold;
+        .btn-primary:hover {
+            background-color: #ff8533;
         }
-
-        .sidebar a:hover {
-            background-color: #f56C00;
-            color: #ffffff;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        .table th {
+            background-color: #ff6600;
+            color: #121212;
         }
-        .logout-button {
-            margin-top: auto;
-            padding: 10px 20px;
-            background-color: #222222;
-            color: #f56C00;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            text-align: center;
-            width: 80%;
-            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
+        .table td {
+            background-color: #2a2a2a;
         }
-
-        .logout-button:hover {
-            background-color: #f56C00;
-            color: #ffffff;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-5px);
-        }
-        .container{
-            margin-left: 330px;
-        }
-        .navbar-brand {
-            font-weight: bold;
-            color: #222222 !important;
-            margin-bottom: 40px;
+        .modal-content {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
         }
     </style>
-<body>
-<div class="sidebar">
-        <p class="navbar-brand" style="font-size: 30px;">Ballers Hub</p>
-        <a href="profile-cms.php">Profile Settings</a>
-        <a href="stats-cms.php">Statistics Settings</a>
-        <a href="gamresult.php">Game Results</a>
-        <a href="CreateTeam.php">Create Team</a>
-        <a href="edit-card-content.php">Dashboard Showcase</a>
-        <a href="viewteams.php">View Teams</a>
-        <a href="Feedback.php">Feedback</a>
-        <button class="logout-button" onclick="logout()">Logout</button>
+</head>
+<body class="flex h-screen bg-gray-900">
+    <div class="sidebar w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+        <div class="flex items-center justify-center mb-8">
+            <img src="./images/Logo.png" alt="Ballers Hub Logo" class="w-12 h-12 mr-2">
+            <h1 class="text-2xl font-semibold text-orange-500">Ballers Hub</h1>
+        </div>
+        <nav>
+            <a href="profile-cms.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-user-cog text-xl"></i>
+                <span>Profile Settings</span>
+            </a>
+            <a href="stats-cms.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-chart-bar text-xl"></i>
+                <span>Statistics Settings</span>
+            </a>
+            <a href="gamresult.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-trophy text-xl"></i>
+                <span>Game Results</span>
+            </a>
+            <a href="CreateTeam.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-users text-xl"></i>
+                <span>Create Team</span>
+            </a>
+            <a href="viewteams.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-eye text-xl"></i>
+                <span>View Teams</span>
+            </a>
+            <a href="update_player_team.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-exchange-alt text-xl"></i>
+                <span>Update Player Team</span>
+            </a>
+            <a href="stat-report.php" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <i class="fas fa-file-alt text-xl"></i>
+                <span>Stats Report</span>
+            </a>
+        </nav>
+        <button onclick="logout()" class="sidebar-item flex items-center space-x-3 px-4 py-3 rounded-lg mt-auto w-full">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+            <span>Logout</span>
+        </button>
     </div>
-    <h2 class="text-center my-4">Basketball Game CMS</h2>
+
+    <div class="content flex-1 p-10 overflow-y-auto">
+        <h2 class="text-3xl font-bold text-center mb-8 text-orange-500">Basketball Game CMS</h2>
+
+        <div class="mb-4 relative">
+            <input type="text" id="searchInput" class="w-full p-2 pl-10 bg-gray-800 text-white rounded-lg" placeholder="Search players...">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2">Picture</th>
+                        <th class="px-4 py-2">First Name</th>
+                        <th class="px-4 py-2">Last Name</th>
+                        <th class="px-4 py-2">No.</th>
+                        <th class="px-4 py-2">Pts</th>
+                        <th class="px-4 py-2">Ast</th>
+                        <th class="px-4 py-2">Reb D</th>
+                        <th class="px-4 py-2">Reb O</th>
+                        <th class="px-4 py-2">Stl</th>
+                        <th class="px-4 py-2">Blk</th>
+                        <th class="px-4 py-2">TO</th>
+                        <th class="px-4 py-2">Fls</th>
+                        <th class="px-4 py-2">2PA</th>
+                        <th class="px-4 py-2">2PM</th>
+                        <th class="px-4 py-2">3PA</th>
+                        <th class="px-4 py-2">3PM</th>
+                        <th class="px-4 py-2">FTA</th>
+                        <th class="px-4 py-2">FTM</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="playerTableBody">
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td class='border px-4 py-2'><img src='" . $row["profile_picture"] . "' alt='Profile' class='w-12 h-12 rounded-full object-cover'></td>";
+                            echo "<td class='border px-4 py-2'>" . $row["first_name"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["last_name"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["number"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["points"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["assists"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["reb_def"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["reb_off"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["steals"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["blocks"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["turnovers"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["fouls"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["2pt_attempted"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["2pt_made"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["3pt_attempted"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["3pt_made"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["ft_attempted"] . "</td>";
+                            echo "<td class='border px-4 py-2'>" . $row["ft_made"] . "</td>";
+                            echo "<td class='border px-4 py-2'>
+                                    <button class='bg-yellow-500 text-black px-2 py-1 rounded-lg mr-2' onclick='editPlayer(" . json_encode($row) . ")'><i class='fas fa-edit'></i></button>
+                                    <button class='bg-red-500 text-white px-2 py-1 rounded-lg' onclick='deletePlayer(" . $row["id"] . ")'><i class='fas fa-trash-alt'></i></button>
+                                  </td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='19' class='text-center border px-4 py-2'>No players found</td></tr>";
+                    }
+                    $conn->close();
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="playerModal" tabindex="-1" role="dialog" aria-labelledby="playerModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="playerModalLabel">Player Form</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+    <div id="playerModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <form action="stats-handler.php" method="post" enctype="multipart/form-data" id="playerForm">
-                    <div class="modal-body">
+                    <div class="bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <h3 class="text-lg font-medium text-gray-100 mb-4">Player Form</h3>
                         <input type="hidden" name="action" id="formAction">
                         <input type="hidden" name="player_id" id="playerId">
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="playerName">Name:</label>
-                                <input type="text" name="name" id="playerName" class="form-control" required>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="playerFirstName" class="block text-gray-300 mb-2">First Name:</label>
+                                <input type="text" name="first_name" id="playerFirstName" class="w-full px-3 py-2 bg-gray-700 text-white rounded-lg" required>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label for="playerNumber">Number:</label>
-                                <input type="number" name="number" id="playerNumber" class="form-control" required>
+                            <div>
+                                <label for="playerLastName" class="block text-gray-300 mb-2">Last Name:</label>
+                                <input type="text" name="last_name" id="playerLastName" class="w-full px-3 py-2 bg-gray-700 text-white rounded-lg" required>
                             </div>
+                            <div>
+                                <label for="playerNumber" class="block text-gray-300 mb-2">Number:</label>
+                                <input type="number" name="number" id="playerNumber" class="w-full px-3 py-2 bg-gray-700 text-white rounded-lg" required>
+                            </div>
+                            <!-- Add all other form fields here, following the same pattern -->
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="playerPoints">Points:</label>
-                                <input type="number" name="points" id="playerPoints" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="playerAssists">Assists:</label>
-                                <input type="number" name="assists" id="playerAssists" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="playerRebDef">Def. Rebounds:</label>
-                                <input type="number" name="reb_def" id="playerRebDef" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="playerRebOff">Off. Rebounds:</label>
-                                <input type="number" name="reb_off" id="playerRebOff" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="playerSteals">Steals:</label>
-                                <input type="number" name="steals" id="playerSteals" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="playerBlocks">Blocks:</label>
-                                <input type="number" name="blocks" id="playerBlocks" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="playerTurnovers">Turnovers:</label>
-                                <input type="number" name="turnovers" id="playerTurnovers" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="playerFouls">Fouls:</label>
-                                <input type="number" name="fouls" id="playerFouls" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="player2ptAttempted">2-Point FG Attempted:</label>
-                                <input type="number" name="2pt_attempted" id="player2ptAttempted" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="player2ptMade">2-Point FG Made:</label>
-                                <input type="number" name="2pt_made" id="player2ptMade" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="player3ptAttempted">3-Point FG Attempted:</label>
-                                <input type="number" name="3pt_attempted" id="player3ptAttempted" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="player3ptMade">3-Point FG Made:</label>
-                                <input type="number" name="3pt_made" id="player3ptMade" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="playerFtAttempted">Free Throw Attempted:</label>
-                                <input type="number" name="ft_attempted" id="playerFtAttempted" class="form-control" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label for="playerFtMade">Free Throw Made:</label>
-                                <input type="number" name="ft_made" id="playerFtMade" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="profilePicture">Profile Picture:</label>
-                            <input type="file" name="profile_picture" id="profilePicture" class="form-control-file">
-                            <img id="profilePicturePreview" src="#" alt="Profile Picture Preview" style="display:none; max-height: 200px; margin-top: 10px;">
+                        <div class="mt-4">
+                            <label for="profilePicture" class="block text-gray-300 mb-2">Profile Picture:</label>
+                            <input type="file" name="profile_picture" id="profilePicture" class="w-full px-3 py-2 bg-gray-700 text-white rounded-lg">
+                            <img id="profilePicturePreview" src="#" alt="Profile Picture Preview" class="mt-2 max-h-40 hidden">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    <div class="bg-gray-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Save changes
+                        </button>
+                        <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-gray-700 text-base font-medium text-gray-300 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Close
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Player Table -->
-    <div class="table-responsive">
-        <table class="table table-dark table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Profile Picture</th>
-                    <th>Name</th>
-                    <th>Number</th>
-                    <th>Points</th>
-                    <th>Assists</th>
-                    <th>Def. Rebounds</th>
-                    <th>Off. Rebounds</th>
-                    <th>Steals</th>
-                    <th>Blocks</th>
-                    <th>Turnovers</th>
-                    <th>Fouls</th>
-                    <th>2-Point FG Attempted</th>
-                    <th>2-Point FG Made</th>
-                    <th>3-Point FG Attempted</th>
-                    <th>3-Point FG Made</th>
-                    <th>Free Throw Attempted</th>
-                    <th>Free Throw Made</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                include 'db-connect.php';
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function editPlayer(player) {
+            $('#formAction').val('update');
+            $('#playerId').val(player.id);
+            $('#playerFirstName').val(player.first_name);
+            $('#playerLastName').val(player.last_name);
+            $('#playerNumber').val(player.number);
+            // Set values for all other fields
+            $('#profilePicturePreview').attr('src', player.profile_picture).show();
+            $('#playerModal').removeClass('hidden');
+        }
 
-                $sql = "SELECT s.*, p.profile_picture FROM statistics s LEFT JOIN profiles p ON s.name = p.name";
-                $result = $conn->query($sql);
-
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td><img src='" . $row["profile_picture"] . "' alt='Profile Picture' style='height: 100px; width: 100px;'></td>";
-                        echo "<td>" . $row["name"] . "</td>";
-                        echo "<td>" . $row["number"] . "</td>";
-                        echo "<td>" . $row["points"] . "</td>";
-                        echo "<td>" . $row["assists"] . "</td>";
-                        echo "<td>" . $row["reb_def"] . "</td>";
-                        echo "<td>" . $row["reb_off"] . "</td>";
-                        echo "<td>" . $row["steals"] . "</td>";
-                        echo "<td>" . $row["blocks"] . "</td>";
-                        echo "<td>" . $row["turnovers"] . "</td>";
-                        echo "<td>" . $row["fouls"] . "</td>";
-                        echo "<td>" . $row["2pt_attempted"] . "</td>";
-                        echo "<td>" . $row["2pt_made"] . "</td>";
-                        echo "<td>" . $row["3pt_attempted"] . "</td>";
-                        echo "<td>" . $row["3pt_made"] . "</td>";
-                        echo "<td>" . $row["ft_attempted"] . "</td>";
-                        echo "<td>" . $row["ft_made"] . "</td>";
-                        echo "<td><button class='btn btn-warning btn-sm' onclick='editPlayer(" . json_encode($row) . ")'>Edit</button> ";
-                        echo "<button class='btn btn-danger btn-sm' onclick='deletePlayer(" . $row["id"] . ")'>Delete</button></td>";
-                        echo "</tr>";
+        function deletePlayer(playerId) {
+            if (confirm('Are you sure you want to delete this player?')) {
+                $.ajax({
+                    url: 'stats-handler.php',
+                    type: 'POST',
+                    data: { action: 'delete', player_id: playerId },
+                    success: function(response) {
+                        location.reload();
                     }
-                } else {
-                    echo "<tr><td colspan='18'>No players found</td></tr>";
-                }
-                $conn->close();
-                ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+                });
+            }
+        }
 
-<!-- Bootstrap and jQuery JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        function closeModal() {
+            $('#playerModal').addClass('hidden');
+        }
 
-<script>
-    function editPlayer(player) {
-        $('#formAction').val('update');
-        $('#playerId').val(player.id);
-        $('#playerName').val(player.name);
-        $('#playerNumber').val(player.number);
-        $('#playerPoints').val(player.points);
-        $('#playerAssists').val(player.assists);
-        $('#playerRebDef').val(player.reb_def);
-        $('#playerRebOff').val(player.reb_off);
-        $('#playerSteals').val(player.steals);
-        $('#playerBlocks').val(player.blocks);
-        $('#playerTurnovers').val(player.turnovers);
-        $('#playerFouls').val(player.fouls);
-        $('#player2ptAttempted').val(player["2pt_attempted"]);
-        $('#player2ptMade').val(player["2pt_made"]);
-        $('#player3ptAttempted').val(player["3pt_attempted"]);
-        $('#player3ptMade').val(player["3pt_made"]);
-        $('#playerFtAttempted').val(player["ft_attempted"]);
-        $('#playerFtMade').val(player["ft_made"]);
-        $('#profilePicturePreview').attr('src', player.profile_picture).show();
-        $('#playerModal').modal('show');
-    }
+        function logout() {
+            // Implement logout logic here
+            window.location.href = 'login.php';
+        }
 
-    function deletePlayer(playerId) {
-        if (confirm('Are you sure you want to delete this player?')) {
+        $('#playerForm').on('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
             $.ajax({
                 url: 'stats-handler.php',
                 type: 'POST',
-                data: { action: 'delete', player_id: playerId },
+                data: formData,
+                contentType: false,
+                processData: false,
                 success: function(response) {
+                    closeModal();
                     location.reload();
                 }
             });
-        }
-    }
+        });
 
-    function logout() {
-        // Implement logout logic here
-    }
-
-    $('#playerForm').on('submit', function(event) {
-        event.preventDefault();
-        var formData = new FormData(this);
-        $.ajax({
-            url: 'stats-handler.php',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                $('#playerModal').modal('hide');
-                location.reload();
+        $('#profilePicture').on('change', function() {
+            const [file] = this.files;
+            if (file) {
+                $('#profilePicturePreview').attr('src', URL.createObjectURL(file)).removeClass('hidden');
             }
         });
-    });
 
-    $('#profilePicture').on('change', function() {
-        const [file] = this.files;
-        if (file) {
-            $('#profilePicturePreview').attr('src', URL.createObjectURL(file)).show();
-        }
-    });
-</script>
+        $(document).ready(function() {
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#playerTableBody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
 </body>
 </html>
