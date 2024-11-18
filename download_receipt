@@ -1,0 +1,92 @@
+<?php
+session_start();
+include 'db-connect.php';
+
+// Redirect if user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// Check if activity ID is provided
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    die("Invalid request");
+}
+
+$activity_id = intval($_GET['id']);
+
+// Fetch activity details
+$stmt = $conn->prepare("SELECT title, start_datetime, amount_paid, receipt_number FROM schedule_list WHERE id = ? AND user_id = ?");
+$stmt->bind_param("ii", $activity_id, $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    die("Activity not found or you don't have permission to access this receipt");
+}
+
+$activity = $result->fetch_assoc();
+$stmt->close();
+$conn->close();
+
+// Generate HTML content for the receipt
+$html = '
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - ' . htmlspecialchars($activity['receipt_number']) . '</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; color: #444; }
+        .receipt { border: 1px solid #ddd; padding: 20px; }
+        .receipt-header { text-align: center; margin-bottom: 20px; }
+        .receipt-details { margin-bottom: 20px; }
+        .receipt-footer { text-align: center; margin-top: 30px; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="receipt-header">
+            <h1>RECEIPT</h1>
+            <p>Ballers Hub</p>
+        </div>
+        <div class="receipt-details">
+            <table>
+                <tr>
+                    <th>Activity:</th>
+                    <td>' . htmlspecialchars($activity['title']) . '</td>
+                </tr>
+                <tr>
+                    <th>Date:</th>
+                    <td>' . htmlspecialchars(date('F j, Y, g:i a', strtotime($activity['start_datetime']))) . '</td>
+                </tr>
+                <tr>
+                    <th>Amount Paid:</th>
+                    <td>₱' . htmlspecialchars(number_format($activity['amount_paid'], 2)) . '</td>
+                </tr>
+                <tr>
+                    <th>Receipt Number:</th>
+                    <td>' . htmlspecialchars($activity['receipt_number']) . '</td>
+                </tr>
+            </table>
+        </div>
+        <div class="receipt-footer">
+            <p>Thank you for your payment!</p>
+        </div>
+    </div>
+</body>
+</html>
+';
+
+// Set headers for HTML download
+header("Content-Type: text/html");
+header("Content-Disposition: attachment; filename=receipt_" . $activity['receipt_number'] . ".html");
+
+// Output HTML content
+echo $html;
+exit();
+?>
