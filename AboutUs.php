@@ -4,158 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - Ballers Hub</title>
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            scroll-behavior: smooth; /* Add smooth scrolling behavior */
+        :root {
+            --primary-color: #F57C00;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
         }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* Navbar styles */
         .navbar {
             background-color: #343a40;
         }
-        .navbar-brand{
+        .navbar-brand {
             color: #F57C00 !important;
+            font-weight: bold;
         }
-        .nav-link{
+        .nav-link {
             color: #ffffff;
         }
-        .nav-link:hover{
+        .nav-link:hover {
             color: #F57C00;
-        }
-        .navbar-brand{
-            font-weight: bold;
         }
         .dropdown-item {
             color: #000000 !important;
         }
         .team-member {
             text-align: center;
-            padding: 40px;
-            border: 2px solid #444444;
-            margin: 20px;
-            border-radius: 15px;
-            background-color: #333333;
-            flex: 1 1 30%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 2rem;
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-hover));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 1rem;
+            flex: 1 1 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
         .team-member:hover {
             transform: translateY(-10px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 40px rgba(245, 124, 0, 0.1);
         }
-        .team-member h3, .team-member h4 {
-            color: #F57C00;
-            font-size: 1.8em;
+        .team-member::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(245, 124, 0, 0.1),
+                transparent
+            );
+            transition: 0.5s;
         }
-        .team-member p {
-            font-size: 1.3em;
+        .team-member:hover::before {
+            left: 100%;
         }
         .team-member img {
-            width: 100%;
-            height: auto;
+            width: 200px;
+            height: 200px;
             object-fit: cover;
             border-radius: 50%;
-            max-width: 300px;
-            transition: transform 0.3s ease;
+            border: 4px solid var(--primary-color);
+            margin-bottom: 1.5rem;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .team-member img:hover {
-            transform: scale(1.1);
+        .team-member:hover img {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .team-member h3 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+        .team-member h4 {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .team-member p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
         }
         .team-container {
             display: flex;
-            justify-content: space-between;
-            flex-wrap: nowrap;
-            gap: 20px;
-        }
-        h1 {
-            font-size: 3em;
-        }
-        .main-container {
-            max-width: 100%;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s ease, transform 1s ease;
-        }
-        .main-container.loaded {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        h3{
-            margin-top: 15px;
-        }
-        /* Styles for Contact Section */
-        .contact-section {
-            background-color: #2C2C2C;
-            padding: 50px 0;
-            margin-top: 50px;
-        }
-        .contact-section h2 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .contact-section p {
-            font-size: 1.2em;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-        .contact-section .contact-container {
-            display: flex;
-            justify-content: center;
             flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem 0;
         }
-        .contact-section form {
-            max-width: 500px;
-            margin-right: 50px;
+        .contact-section {
+        background-color: #1a1a1a;
+        padding: 80px 0;
+        margin-top: 50px;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        color: #F57C00;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .section-description {
+        color: #e0e0e0;
+        text-align: center;
+        margin-bottom: 50px;
+        font-size: 1.1rem;
+    }
+
+    .contact-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .contact-form-wrapper {
+        flex: 1;
+        max-width: 600px;
+    }
+
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background-color: #2a2a2a;
+        color: #ffffff;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #F57C00;
+        box-shadow: 0 0 0 2px rgba(245, 124, 0, 0.2);
+    }
+
+    .form-input::placeholder {
+        color: #888;
+    }
+
+    textarea.form-input {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .submit-btn {
+        background-color: #F57C00;
+        color: #ffffff;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: fit-content;
+    }
+
+    .submit-btn:hover {
+        background-color: #e65100;
+        transform: translateY(-2px);
+    }
+
+    .contact-info {
+        flex: 1;
+        max-width: 400px;
+        padding: 30px;
+        background-color: #2a2a2a;
+        border-radius: 12px;
+        height: fit-content;
+    }
+
+    .info-item {
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #e0e0e0;
+    }
+
+    .info-item i {
+        color: #F57C00;
+        font-size: 1.2rem;
+    }
+
+    .info-item a {
+        color: #F57C00;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .info-item a:hover {
+        color: #e65100;
+    }
+
+    .social-media {
+        margin-top: 30px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .social-link {
+        color: #F57C00;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        color: #e65100;
+        transform: translateY(-3px);
+    }
+
+    @media (max-width: 768px) {
+        .contact-container {
+            flex-direction: column;
         }
-        .contact-section input, .contact-section textarea {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
+
+        .contact-info {
+            max-width: 100%;
         }
-        .contact-section input[type="submit"] {
-            background-color: #F57C00;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        .contact-section input[type="submit"]:hover {
-            background-color: #e86b00;
-        }
-        .contact-details {
-            max-width: 500px;
-            color: #ccc;
-        }
-        .contact-details p {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .contact-details a {
-            color: #F57C00;
-            text-decoration: none;
-        }
-        .contact-details a:hover {
-            text-decoration: underline;
-        }
-        .contact-details i {
-            margin-right: 10px;
-        }
-        .social-media {
-            margin-top: 20px;
-            text-align: center; /* Center the social media icons */
-        }
-        .social-media a {
-            color: #F57C00;
-            margin: 0 10px;
-            font-size: 1.5em;
-        }
-        .social-media a:hover {
-            color: #e86b00;
-        }
+    }
     </style>
 </head>
 <body>
@@ -213,30 +315,47 @@
             </div>
         </div>
     </div>
-
     <div id="contact-section" class="contact-section">
-        <div class="container">
-            <h2>Contact Us</h2>
-            <p>Have any questions? We'd love to hear from you.</p>
-            <div class="contact-container">
-                <form action="handle_feedback.php" method="post">
-                    <input type="text" name="name" placeholder="Your Name" required>
-                    <input type="email" name="email" placeholder="Your Email" required>
-                    <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
-                    <input type="submit" value="Submit">
-                </form>
-                <div class="contact-details">
-                    <p><i class="bi bi-envelope-fill"></i>Email: <a href="mailto:BallersHub@gmail.com">BallersHub@gmail.com</a></p>
-                    <p><i class="bi bi-telephone-fill"></i>Phone: <a href="tel:+63123456789">+63 123 456 789</a></p>
-                    <div class="social-media">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-twitter"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
+    <div class="container">
+        <h2 class="section-title">Contact Us</h2>
+        <p class="section-description">Have any questions? We'd love to hear from you.</p>
+        
+        <div class="contact-container">
+            <div class="contact-form-wrapper">
+                <form action="handle_feedback.php" method="post" class="contact-form">
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Your Name" required class="form-input">
                     </div>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Your Email" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" placeholder="Your Message" rows="5" required class="form-input"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+
+            <div class="contact-info">
+                <div class="info-item">
+                    <i class="bi bi-envelope-fill"></i>
+                    <span>Email:</span>
+                    <a href="mailto:BallersHub@gmail.com">BallersHub@gmail.com</a>
+                </div>
+                <div class="info-item">
+                    <i class="bi bi-telephone-fill"></i>
+                    <span>Phone:</span>
+                    <a href="tel:+63123456789">+63 123 456 789</a>
+                </div>
+                <div class="social-media">
+                    <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
