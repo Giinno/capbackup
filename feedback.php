@@ -11,178 +11,236 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback Messages - Ballers Hub</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #f56C00;
+            --secondary-color: #222;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #121212;
-            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
         }
-        .navbar {
-            background-color: #222222;
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
         }
-        .navbar-brand {
-            font-weight: bold;
-            color: #222222 !important;
-            margin-bottom: 40px;
-        }
-        .table-container {
-            margin-top: 50px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 15px;
-        }
-        .table-dark {
-            background-color: #1e1e1e;
-        }
-        .table-dark th {
-            background-color: #2e2e2e;
-        }
-        .table-dark tr:hover {
-            background-color: #2a2a2a;
-        }
-        .table-dark td, .table-dark th {
-            border: 1px solid #3a3a3a;
-        }
-        .table-dark thead th {
-            border-bottom: 2px solid #4a4a4a;
-        }
-        h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+
         .sidebar {
-            height: 100%;
-            width: 200px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: white;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            background-color: #575d63;
-        }
-
-        .content {
-            margin-left: 210px;
-            padding: 20px;
-        }
-        .sidebar {
-            height: 100vh;
             width: 250px;
-            background-color: #f56C00;
-            position: fixed;
-            top: 0;
-            left: 0;
+            background-color: var(--primary-color);
+            padding: 2rem 1rem;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s ease;
-        }
-        .sidebar a {
-            font-size: 18px;
-            text-decoration: none;
-            color: #222222;
-            padding: 15px 20px;
-            text-align: center;
-            width: 80%;
-            margin: 10px 0;
-            border-radius: 8px;
-            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
-            background-color: #ffffff;
-            color: black;
-            font-weight: bold;
+            position: fixed;
+            height: 100vh;
         }
 
-        .sidebar a:hover {
-            background-color: #f56C00;
-            color: #ffffff;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        .sidebar-brand {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
         }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: var(--secondary-color);
+            background-color: white;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .sidebar-nav-link:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .sidebar-nav-link i {
+            margin-right: 0.5rem;
+        }
+
         .logout-button {
             margin-top: auto;
-            padding: 10px 20px;
-            background-color: #222222;
-            color: #f56C00;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
             border: none;
+            padding: 0.75rem;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
-            text-align: center;
-            width: 80%;
-            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
+            transition: background-color 0.3s, color 0.3s;
+            font-weight: 600;
         }
 
         .logout-button:hover {
-            background-color: #f56C00;
-            color: #ffffff;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-5px);
+            background-color: var(--text-color);
+            color: var(--secondary-color);
         }
-        .container{
-            margin-left: 265px;
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            margin-left: 250px;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .table-container {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #2e2e2e;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #2a2a2a;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1rem;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
         }
     </style>
 </head>
-
 <body>
-<div class="sidebar">
-        <p class="navbar-brand" style="font-size: 30px;">Ballers Hub</p>
-        <a href="profile-cms.php">Profile Settings</a>
-        <a href="stats-cms.php">Statistics Settings</a>
-        <a href="gamresult.php">Game Results</a>
-        <a href="CreateTeam.php">Create Team</a>
-        <a href="edit-card-content.php">Dashboard Showcase</a>
-        <a href="viewteams.php">View Teams</a>
-        <a href="Feedback.php">Feedback</a>
-        <button class="logout-button" onclick="logout()">Logout</button>
-    </div>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">Ballers Hub</div>
+            <nav>
+            <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="admin-dashboard.php" class="sidebar-nav-link">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="manage-events.php" class="sidebar-nav-link">
+                            <i class="fas fa-calendar-alt"></i> Manage Events
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="add-event.php" class="sidebar-nav-link">
+                            <i class="fas fa-plus-circle"></i> Add Event
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="edit-card-content.php" class="sidebar-nav-link">
+                            <i class="fas fa-edit"></i> Dashboard Showcase
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="Feedback.php" class="sidebar-nav-link">
+                            <i class="fas fa-comment"></i> Feedback
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="admin_registration.php" class="sidebar-nav-link">
+                            <i class="fas fa-comment"></i> Admin Registration
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <button class="logout-button" onclick="window.location.href='logout.php'">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </aside>
 
-    <div class="container table-container">
-        <h1>Feedback Messages</h1>
-        <table class="table table-dark table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Message</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>{$row['id']}</td>
-                                <td>{$row['name']}</td>
-                                <td>{$row['email']}</td>
-                                <td>{$row['message']}</td>
-                                <td>{$row['created_at']}</td>
-                              </tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='5' class='text-center'>No messages found</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
+        <main class="main-content">
+            <h1 class="page-title">Feedback Messages</h1>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($result->num_rows > 0) {
+                            while($row = $result->fetch_assoc()) {
+                                echo "<tr>
+                                        <td>{$row['id']}</td>
+                                        <td>{$row['name']}</td>
+                                        <td>{$row['email']}</td>
+                                        <td>{$row['message']}</td>
+                                        <td>{$row['created_at']}</td>
+                                      </tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='5' style='text-align: center;'>No messages found</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
 </body>
 </html>
