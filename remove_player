@@ -1,0 +1,22 @@
+<?php
+// remove_player.php
+
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['player_name'])) {
+    $player_name = $_POST['player_name'];
+    
+    // TODO: Implement the logic to remove the player from the team in your database
+    // This is a placeholder response
+    $response = [
+        'status' => 'success',
+        'message' => "Player $player_name has been removed from the team."
+    ];
+} else {
+    $response = [
+        'status' => 'error',
+        'message' => 'Invalid request or missing player name.'
+    ];
+}
+
+echo json_encode($response);
