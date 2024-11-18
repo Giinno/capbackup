@@ -20,163 +20,198 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <title>View Events</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>View Events - Ballers Hub</title>
+    <link rel="icon" href="./images/Bhub2.png" type="image/png">
     <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: 'Montserrat', sans-serif;
+        :root {
+            --primary-color: #f57C00;
+            --secondary-color: #222;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --card-bg-color: #1E1E1E;
+            --hover-color: #2A2A2A;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            box-sizing: border-box;
         }
-        h1 {
-            margin-top: 20px;
-            color: #f57C00;
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         .container {
-            width: 100%;
             max-width: 1200px;
-            padding: 0 20px;
+            margin: 0 auto;
+            padding: 2rem;
         }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
         .search-container {
-            width: 100%;
-            margin: 20px 0;
             display: flex;
             justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
             position: relative;
         }
-        .search-container input[type="text"] {
-            padding: 10px 20px;
-            border: 1px solid #555;
-            border-radius: 25px;
-            background-color: #222;
-            color: #fff;
+
+        .search-input {
             width: 100%;
             max-width: 500px;
-            font-size: 16px;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: box-shadow 0.3s ease;
         }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+
         .back-button {
             position: absolute;
+            left: -3rem;
             top: 50%;
-            left: 10px;
             transform: translateY(-50%);
-            background-color: #f57C00;
+            background-color: var(--primary-color);
+            color: var(--text-color);
             border: none;
             border-radius: 50%;
-            color: #fff;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 18px;
+            width: 2.5rem;
+            height: 2.5rem;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+
         .back-button:hover {
-            background-color: #ff7d1a;
+            background-color: #ff9800;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background-color: #222;
-            border-radius: 8px;
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .event-card {
+            background-color: var(--card-bg-color);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        table, th, td {
-            border: 1px solid #444;
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
+
+        .event-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
         }
-        th {
-            background-color: #333;
+
+        .event-details {
+            padding: 1.5rem;
         }
-        tr:nth-child(even) {
-            background-color: #222;
+
+        .event-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
         }
-        tr:hover {
-            background-color: #444;
+
+        .event-description {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
         }
-        img {
-            width: 100px;
-            height: auto;
-            border-radius: 5px;
+
+        .event-date {
+            font-size: 0.8rem;
+            color: #888;
         }
-        a {
-            color: #f57C00;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+
         @media (max-width: 768px) {
-            .search-container input[type="text"] {
-                width: calc(100% - 60px); /* 60px is the back button width */
+            .container {
+                padding: 1rem;
             }
-            table, th, td {
-                display: block;
-                width: 100%;
+
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
             }
-            th, td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
+
+            .back-button {
+                position: static;
+                transform: none;
+                margin-bottom: 1rem;
+                align-self: flex-start;
             }
-            th::before, td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: calc(50% - 20px);
-                text-align: left;
-                font-weight: bold;
+
+            .search-input {
+                max-width: none;
             }
-            th {
-                background-color: transparent;
-                border-bottom: 2px solid #444;
+
+            .events-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <h1>View Events</h1>
     <div class="container">
+        <h1>View Events</h1>
         <div class="search-container">
             <button class="back-button" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
-            <input type="text" id="search" name="search" placeholder="Search by event title..." value="<?php echo htmlspecialchars($search); ?>" onkeyup="liveSearch()">
+            <input type="text" id="search" class="search-input" name="search" placeholder="Search by event title..." value="<?php echo htmlspecialchars($search); ?>" onkeyup="liveSearch()">
+            <i class="fas fa-search search-icon"></i>
         </div>
-        <table id="events-table">
-            <tr>
-                <th>Event ID</th>
-                <th>Event Title</th>
-                <th>Event Description</th>
-                <th>Event Date</th>
-                <th>Event Image</th>
-            </tr>
-            <tbody id="events-body">
-                <?php if ($result->num_rows > 0): ?>
-                    <?php while($row = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td data-label="Event ID"><?php echo htmlspecialchars($row['id']); ?></td>
-                            <td data-label="Event Title"><?php echo htmlspecialchars($row['title'] ?? 'N/A'); ?></td>
-                            <td data-label="Event Description"><?php echo htmlspecialchars($row['description'] ?? 'N/A'); ?></td>
-                            <td data-label="Event Date"><?php echo htmlspecialchars($row['event_date'] ?? 'N/A'); ?></td>
-                            <td data-label="Event Image"><img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="Event Image"></td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="5">No events found.</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+        <div id="events-grid" class="events-grid">
+            <?php if ($result->num_rows > 0): ?>
+                <?php while($row = $result->fetch_assoc()): ?>
+                    <div class="event-card">
+                        <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="Event Image" class="event-image">
+                        <div class="event-details">
+                            <h2 class="event-title"><?php echo htmlspecialchars($row['title'] ?? 'N/A'); ?></h2>
+                            <p class="event-description"><?php echo htmlspecialchars($row['description'] ?? 'N/A'); ?></p>
+                            <p class="event-date"><?php echo htmlspecialchars($row['event_date'] ?? 'N/A'); ?></p>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p>No events found.</p>
+            <?php endif; ?>
+        </div>
     </div>
     <script>
         function liveSearch() {
@@ -186,7 +221,7 @@ if (!$result) {
                 .then(data => {
                     let parser = new DOMParser();
                     let doc = parser.parseFromString(data, 'text/html');
-                    document.getElementById('events-body').innerHTML = doc.getElementById('events-body').innerHTML;
+                    document.getElementById('events-grid').innerHTML = doc.getElementById('events-grid').innerHTML;
                 });
         }
     </script>
