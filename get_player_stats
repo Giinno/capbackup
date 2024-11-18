@@ -1,0 +1,45 @@
+<?php
+require_once 'db-connect.php';
+
+header('Content-Type: application/json');
+
+if (!isset($_GET['first_name']) || !isset($_GET['last_name'])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Missing required parameters']);
+    exit;
+}
+
+$first_name = $_GET['first_name'];
+$last_name = $_GET['last_name'];
+
+try {
+    $query = "SELECT s.game_id, s.first_name, s.last_name, 
+              s.points, s.assists, s.rebounds, s.steals, s.blocks, 
+              s.turnovers, s.2pt_attempted, s.2pt_made, 
+              s.3pt_attempted, s.3pt_made, s.ft_attempted, s.ft_made, 
+              s.reb_off, s.reb_def, s.fouls,
+              g.game_date, g.team1, g.team2, g.team1_score, g.team2_score
+              FROM statistics s
+              JOIN games g ON s.game_id = g.game_id
+              WHERE s.first_name = ? AND s.last_name = ?
+              ORDER BY g.game_date ASC";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ss", $first_name, $last_name);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $player_games = $result->fetch_all(MYSQLI_ASSOC);
+
+    echo json_encode($player_games);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+} finally {
+    if (isset($stmt)) {
+        $stmt->close();
+    }
+    if (isset($conn)) {
+        $conn->close();
+    }
+}
+?>
