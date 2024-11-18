@@ -1,36 +1,30 @@
 <?php
-session_start();
 require_once('db-connect.php');
 
-// Check if the user is logged in and is a Scheduling-admin
-if (!isset($_SESSION['user_id']) || strtolower(trim($_SESSION['role'])) !== 'scheduling-admin') {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized action.']);
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
     exit;
 }
 
-$schedule_id = $_GET['id'] ?? 0;
+$scheduleId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-if (!$schedule_id) {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
+if ($scheduleId <= 0) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid schedule ID']);
     exit;
 }
 
-$query = $conn->prepare("SELECT id, title, description, start_datetime, end_datetime FROM `schedule_list` WHERE id = ?");
-$query->bind_param("i", $schedule_id);
+$stmt = $conn->prepare("SELECT id, title, description, start_datetime, end_datetime, status, amount_paid, event_type, receipt_number FROM schedule_list WHERE id = ?");
+$stmt->bind_param("i", $scheduleId);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if ($query->execute()) {
-    $result = $query->get_result();
-    if ($result->num_rows > 0) {
-        $schedule = $result->fetch_assoc();
-        // Format the datetime values for the form inputs
-        $schedule['start_datetime'] = date("Y-m-d\TH:i:s", strtotime($schedule['start_datetime']));
-        $schedule['end_datetime'] = date("Y-m-d\TH:i:s", strtotime($schedule['end_datetime']));
-        echo json_encode($schedule);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Schedule not found.']);
-    }
+if ($row = $result->fetch_assoc()) {
+    echo json_encode($row);
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Failed to retrieve schedule: ' . $conn->error]);
+    echo json_encode(['status' => 'error', 'message' => 'No schedule found with the given ID']);
 }
 
+$stmt->close();
 $conn->close();
