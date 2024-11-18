@@ -1,0 +1,22 @@
+<?php
+// fetch_team_stats.php
+include 'database_connection.php'; // Assume this file sets up the DB connection
+
+if (isset($_GET['team1']) && isset($_GET['team2'])) {
+    $team1Id = $_GET['team1'];
+    $team2Id = $_GET['team2'];
+
+    // Query to fetch stats (example query, adjust as necessary)
+    $query = $db->prepare("SELECT total_score, average_score, win_percentage FROM team_stats WHERE team1_id = :team1Id AND team2_id = :team2Id");
+    $query->execute(['team1Id' => $team1Id, 'team2Id' => $team2Id]);
+    $stats = $query->fetch(PDO::FETCH_ASSOC);
+
+    if ($stats) {
+        echo json_encode(['stats' => $stats]);
+    } else {
+        echo json_encode(['stats' => null]);
+    }
+} else {
+    echo json_encode(['error' => 'Team IDs not provided']);
+}
+?>
